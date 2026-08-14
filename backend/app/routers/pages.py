@@ -1,6 +1,14 @@
 from pathlib import Path
 from uuid import uuid4
 
+from app.core.auth import get_current_user
+from app.core.dependencies import get_db
+from app.models.collection import Collection
+from app.models.manuscript import Manuscript
+from app.models.page import Page
+from app.models.user import User
+from app.schemas.page import PageResponse
+from app.services.provenance import create_artifact
 from fastapi import (
     APIRouter,
     Depends,
@@ -10,16 +18,8 @@ from fastapi import (
     status,
 )
 from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
-
-from app.core.auth import get_current_user
-from app.core.dependencies import get_db
-from app.models.collection import Collection
-from app.models.manuscript import Manuscript
-from app.models.page import Page
-from app.models.user import User
-from app.schemas.page import PageResponse
-
 
 router = APIRouter(
     tags=["Pages"],
@@ -72,7 +72,9 @@ async def upload_page(
             detail="Page number must be greater than zero",
         )
 
-    if file.content_type not in ALLOWED_TYPES:
+    # Safe fallback if content_type is None
+    content_type = file.content_type or ""
+    if content_type not in ALLOWED_TYPES:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Only JPEG, PNG and WebP images are allowed",
@@ -101,7 +103,6 @@ async def upload_page(
     )
 
     file_path = STORAGE_DIR / safe_filename
-
     file_path.write_bytes(content)
 
     page = Page(
@@ -109,12 +110,40 @@ async def upload_page(
         page_number=page_number,
         original_filename=file.filename or "unknown",
         original_path=str(file_path),
-        mime_type=file.content_type,
+        mime_type=content_type,
     )
 
-    db.add(page)
-    db.commit()
-    db.refresh(page)
+    try:
+        # Add and flush to generate page.id before creating the artifact
+        db.add(page)
+        db.flush()
+
+        artifact = create_artifact(
+            db,
+            page_id=page.id,
+            artifact_type="ORIGINAL",
+            file_path=str(file_path),
+            created_by=current_user.id,
+            generation_method="human",
+            metadata={
+                "original_filename": file.filename or "unknown",
+                "mime_type": content_type,
+                "page_number": page_number,
+            },
+        )
+
+        db.commit()
+        db.refresh(page)
+        
+    except SQLAlchemyError as e:
+        db.rollback()
+        # Clean up the orphaned file if DB commit fails
+        if file_path.exists():
+            file_path.unlink()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Could not save page to database. Ensure data is valid."
+        )
 
     return page
 
@@ -219,8 +248,19 @@ def delete_page(
 
     file_path = Path(page.original_path)
 
-    if file_path.exists():
-        file_path.unlink()
-
-    db.delete(page)
-    db.commit()
+    try:
+        # Note: Your Page ORM model must have cascade="all, delete-orphan" 
+        # for its relationship with Artifacts to avoid a foreign key constraint error here.
+        db.delete(page)
+        db.commit()
+        
+        # Only delete the file AFTER the DB transaction is successful
+        if file_path.exists():
+            file_path.unlink()
+            
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not delete page from database."
+        )
