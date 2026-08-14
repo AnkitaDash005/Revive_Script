@@ -4,6 +4,9 @@ from sqlalchemy import text  # type: ignore[import-not-found]
 from app.core.config import settings
 from app.database.database import engine
 from app.routers.auth import router as auth_router
+from app.routers.collections import router as collection_router
+from app.routers.manuscripts import router as manuscript_router
+from app.routers.pages import router as page_router
 
 app=FastAPI(
     title=settings.app_name,
@@ -11,6 +14,9 @@ app=FastAPI(
     version="0.1.0"
 )
 app.include_router(auth_router)
+app.include_router(collection_router)
+app.include_router(manuscript_router)
+app.include_router(page_router)
 
 
 @app.get("/")
