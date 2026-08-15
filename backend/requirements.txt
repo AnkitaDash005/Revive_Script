@@ -10,3 +10,12 @@ pwdlib[argon2]
 PyJWT
 email-validator
 psycopg-binary
+
+Authlib
+httpx
+python-multipart
+itsdangerous
+
+
+
+

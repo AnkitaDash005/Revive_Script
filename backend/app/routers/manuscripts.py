@@ -1,6 +1,6 @@
 from app.core.auth import get_current_user
 from app.core.dependencies import get_db
-from app.models.collection import Collection
+from app.models.collection import Collections
 from app.models.manuscript import Manuscript
 from app.models.user import User
 from app.schemas.manuscript import (

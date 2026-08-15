@@ -25,9 +25,22 @@ class User(Base):
         nullable=False
     )
     # ✅ Fixed: Extended to 255 to store Argon2/bcrypt password hashes
-    password_hash: Mapped[str] = mapped_column(
+    password_hash: Mapped[str |None] = mapped_column(
         String(255),
-        nullable=False
+        nullable=True
+    )
+    #Added: Google Authentication and made password_hash as can be nullable
+    google_id: Mapped[str | None] = mapped_column(
+        String(255),
+        unique=True,
+        index=True,
+        nullable=True,
+    )
+
+    auth_provider: Mapped[str] = mapped_column(
+        String(50),
+        default="local",
+        nullable=False,
     )
     role: Mapped[str] = mapped_column(
         String(50),

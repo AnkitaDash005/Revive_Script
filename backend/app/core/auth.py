@@ -8,6 +8,7 @@ from app.core.config import settings
 from app.core.dependencies import get_db
 from app.models.user import User
 
+
 bearer_scheme = HTTPBearer()
 
 
