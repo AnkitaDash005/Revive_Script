@@ -31,22 +31,32 @@ def register(
     data: RegisterRequest,
     db: Session = Depends(get_db),
 ):
-    existing_user = db.scalar(
-        select(User).where(User.email == data.email)
-    )
+    existing_email = db.scalar(
+    select(User).where(User.email == data.email)
+)
 
-    if existing_user:
+    if existing_email:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Email already registered",
-        )
+    )
+
+    existing_username = db.scalar(
+        select(User).where(User.name == data.name)
+    )
+
+    if existing_username:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Username already taken",
+    )
 
     # Fixed: Unindented out of the 'if existing_user' block
     user = User(
         name=data.name,
         email=data.email,
         password_hash=hash_password(data.password),
-        auth_provider="email",
+        auth_provider="local",
         role="researcher",
     )
 
@@ -66,20 +76,26 @@ def login(
     db: Session = Depends(get_db),
 ):
     user = db.scalar(
-        select(User).where(User.email == data.email)
+        select(User).where(
+            (User.email == data.identifier)
+            | (User.name == data.identifier)
+        )
     )
 
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password",
+            detail="Invalid username/email or password",
         )
 
-    # Google-only account (no password set)
+    # Google-only account
     if not user.password_hash:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="This account uses Google login. Please sign in with Google.",
+            detail=(
+                "This account uses Google login. "
+                "Please sign in with Google."
+            ),
         )
 
     if not verify_password(
@@ -88,7 +104,7 @@ def login(
     ):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password",
+            detail="Invalid username/email or password",
         )
 
     if not user.is_active:
@@ -106,7 +122,6 @@ def login(
         "access_token": token,
         "token_type": "bearer",
     }
-
 
 @router.get("/google/login")
 async def google_login(request: Request):

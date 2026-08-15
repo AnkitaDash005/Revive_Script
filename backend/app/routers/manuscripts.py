@@ -28,9 +28,9 @@ def create_manuscript(
     db: Session = Depends(get_db),
 ):
     collection = db.scalar(
-        select(Collection).where(
-            Collection.id == collection_id,
-            Collection.owner_id == current_user.id,
+        select(Collections).where(
+            Collections.id == collection_id,
+            Collections.owner_id == current_user.id,
         )
     )
 
@@ -67,9 +67,9 @@ def list_manuscripts(
     db: Session = Depends(get_db),
 ):
     collection = db.scalar(
-        select(Collection).where(
-            Collection.id == collection_id,
-            Collection.owner_id == current_user.id,
+        select(Collections).where(
+            Collections.id == collection_id,
+            Collections.owner_id == current_user.id,
         )
     )
 
@@ -99,12 +99,12 @@ def get_manuscript(
     manuscript = db.scalar(
         select(Manuscript)
         .join(
-            Collection,
-            Manuscript.collection_id == Collection.id,
+            Collections,
+            Manuscript.collection_id == Collections.id,
         )
         .where(
             Manuscript.id == manuscript_id,
-            Collection.owner_id == current_user.id,
+            Collections.owner_id == current_user.id,
         )
     )
 
@@ -129,12 +129,12 @@ def update_manuscript(
     manuscript = db.scalar(
         select(Manuscript)
         .join(
-            Collection,
-            Manuscript.collection_id == Collection.id,
+            Collections,
+            Manuscript.collection_id == Collections.id,
         )
         .where(
             Manuscript.id == manuscript_id,
-            Collection.owner_id == current_user.id,
+            Collections.owner_id == current_user.id,
         )
     )
 
@@ -166,12 +166,12 @@ def delete_manuscript(
     manuscript = db.scalar(
         select(Manuscript)
         .join(
-            Collection,
+            Collections,
             Manuscript.collection_id == Collection.id,
         )
         .where(
             Manuscript.id == manuscript_id,
-            Collection.owner_id == current_user.id,
+            Collections.owner_id == current_user.id,
         )
     )
 

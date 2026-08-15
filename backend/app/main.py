@@ -9,6 +9,7 @@ from app.routers.collections import router as collection_router
 from app.routers.manuscripts import router as manuscript_router
 from app.routers.pages import router as page_router
 from app.routers.provenance import router as provenance_router
+from app.routers.ai import router as ai_router
 
 app = FastAPI(
     title=settings.app_name,
@@ -31,6 +32,7 @@ app.include_router(collection_router)
 app.include_router(manuscript_router)
 app.include_router(page_router)
 app.include_router(provenance_router)
+app.include_router(ai_router)
 
 
 @app.get("/")

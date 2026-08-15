@@ -51,12 +51,12 @@ async def upload_page(
     manuscript = db.scalar(
         select(Manuscript)
         .join(
-            Collection,
-            Manuscript.collection_id == Collection.id,
+            Collections,
+            Manuscript.collection_id == Collections.id,
         )
         .where(
             Manuscript.id == manuscript_id,
-            Collection.owner_id == current_user.id,
+            Collections.owner_id == current_user.id,
         )
     )
 
@@ -159,12 +159,12 @@ def list_pages(
     manuscript = db.scalar(
         select(Manuscript)
         .join(
-            Collection,
-            Manuscript.collection_id == Collection.id,
+            Collections,
+            Manuscript.collection_id == Collections.id,
         )
         .where(
             Manuscript.id == manuscript_id,
-            Collection.owner_id == current_user.id,
+            Collections.owner_id == current_user.id,
         )
     )
 
@@ -198,12 +198,12 @@ def get_page(
             Page.manuscript_id == Manuscript.id,
         )
         .join(
-            Collection,
-            Manuscript.collection_id == Collection.id,
+            Collections,
+            Manuscript.collection_id == Collections.id,
         )
         .where(
             Page.id == page_id,
-            Collection.owner_id == current_user.id,
+            Collections.owner_id == current_user.id,
         )
     )
 
@@ -231,12 +231,12 @@ def delete_page(
             Page.manuscript_id == Manuscript.id,
         )
         .join(
-            Collection,
-            Manuscript.collection_id == Collection.id,
+            Collections,
+            Manuscript.collection_id == Collections.id,
         )
         .where(
             Page.id == page_id,
-            Collection.owner_id == current_user.id,
+            Collections.owner_id == current_user.id,
         )
     )
 

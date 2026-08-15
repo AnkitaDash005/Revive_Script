@@ -5,6 +5,7 @@ from app.models.manuscript import Manuscript
 from app.models.page import Page
 from app.models.provenance import ProvenanceEvent
 from app.models.user import User
+from app.models.ai_job import AIJob
 
 __all__ = [
     "Artifact",
