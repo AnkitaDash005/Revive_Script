@@ -23,3 +23,14 @@ Thumbs.db
 storage/originals/*
 storage/processed/*
 storage/crops/*
+
+# AI virtual environment
+.venv-ai/
+
+# AI model cache
+models/
+hf_cache/
+
+# Python cache
+__pycache__/
+*.pyc

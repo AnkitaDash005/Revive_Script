@@ -16,6 +16,16 @@ httpx
 python-multipart
 itsdangerous
 
+numpy
+opencv-python
+Pillow
+transformers
+torch
+accelerate
+sentence-transformers
+qdrant-client
+scikit-learn
+rapidfuzz
 
 
 
