@@ -27,5 +27,6 @@ qdrant-client
 scikit-learn
 rapidfuzz
 
-
+paddleocr
+paddlepaddle
 
