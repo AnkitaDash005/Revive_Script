@@ -25,7 +25,8 @@ ALLOWED_JOB_TYPES = {
     "RECONSTRUCTION",
     "TRANSLATION",
     "LLM_ANALYSIS",
-    "VLM"
+    "VLM",
+    "EVALUATION",
 }
 
 

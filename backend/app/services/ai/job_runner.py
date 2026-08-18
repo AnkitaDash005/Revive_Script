@@ -1,5 +1,6 @@
 from app.models.ai_job import AIJob
 from app.models.page import Page
+from app.services.ai.evaluation import EvaluationService
 from app.services.ai.ocr import OCRService
 from app.services.ai.rag import RAGService
 from app.services.ai.reconstruction import ReconstructionService
@@ -205,6 +206,72 @@ def run_rag_job(
 
         raise
 
+
+def run_evaluation_job(
+    *,
+    db: Session,
+    job: AIJob,
+) -> dict:
+
+    page = db.get(Page, job.page_id)
+
+    if page is None:
+        raise ValueError(
+            f"Page {job.page_id} not found"
+        )
+
+    params = job.parameters or {}
+
+    predicted_text = params.get(
+        "predicted_text",
+        "",
+    )
+
+    reference_text = params.get(
+        "reference_text",
+        "",
+    )
+
+    if not predicted_text:
+        raise ValueError(
+            "Evaluation job requires parameters.predicted_text"
+        )
+
+    job.status = "processing"
+    job.error_message = None
+
+    db.commit()
+    db.refresh(job)
+
+    try:
+        service = EvaluationService()
+
+        result = service.process(
+            page_id=page.id,
+            input_data={
+                "predicted_text": predicted_text,
+                "reference_text": reference_text,
+            },
+        )
+
+        job.status = "completed"
+        job.result_metadata = result
+
+        db.commit()
+        db.refresh(job)
+
+        return result
+
+    except Exception as exc:
+        job.status = "failed"
+        job.error_message = str(exc)
+
+        db.commit()
+        db.refresh(job)
+
+        raise
+
+
 def run_ai_job(
     *,
     db: Session,
@@ -219,6 +286,12 @@ def run_ai_job(
 
     if job.job_type == "RECONSTRUCTION":
         return run_reconstruction_job(
+            db=db,
+            job=job,
+        )
+
+    if job.job_type == "EVALUATION":
+        return run_evaluation_job(
             db=db,
             job=job,
         )
