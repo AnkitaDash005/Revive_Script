@@ -4,7 +4,6 @@ from typing import Any, ClassVar
 
 import cv2
 import numpy as np
-
 from app.services.ai.base import AIService
 
 
@@ -36,7 +35,7 @@ class OCRService(AIService):
                 use_textline_orientation=False,
 
                 # Performance tuning
-                enable_mkldnn=True,
+                enable_mkldnn=False,
                 cpu_threads=min(4, os.cpu_count() or 4),
                 
                 # Constrain max detection image dimension to prevent slow processing

@@ -1,20 +1,39 @@
-from sqlalchemy.orm import Session
-
 from app.models.ai_job import AIJob
 from app.models.page import Page
 from app.services.ai.ocr import OCRService
+from app.services.ai.rag import RAGService
+from app.services.ai.reconstruction import ReconstructionService
 from app.services.ai.vlm import VLMService
+from sqlalchemy.orm import Session
 
 
-def run_ocr_job(
+def run_ocr_vlm_job(
     *,
     db: Session,
     job: AIJob,
 ) -> dict:
+    """
+    B2.8.3 pipeline:
+
+        Page image
+            ↓
+        OCR
+            ↓
+        Gemini / VLM
+            ↓
+        Final transcription
+    """
+
     page = db.get(Page, job.page_id)
 
     if page is None:
-        raise ValueError(f"Page {job.page_id} not found")
+        raise ValueError(
+            f"Page {job.page_id} not found"
+        )
+
+    # --------------------------------------------------
+    # 1. Locate page image
+    # --------------------------------------------------
 
     image_path = (
         getattr(page, "processed_path", None)
@@ -23,20 +42,96 @@ def run_ocr_job(
 
     if not image_path:
         raise ValueError(
-            f"Page {page.id} has no image available to process"
+            f"Page {page.id} has no image available"
         )
 
+    # --------------------------------------------------
+    # 2. Mark job as processing
+    # --------------------------------------------------
+
     job.status = "processing"
+    job.error_message = None
+
     db.commit()
     db.refresh(job)
 
     try:
+        # --------------------------------------------------
+        # 3. Run OCR
+        # --------------------------------------------------
+
         ocr_service = OCRService()
 
-        result = ocr_service.process(
+        ocr_result = ocr_service.process(
             page_id=page.id,
-            input_data=str(image_path),
+            input_data=image_path,
         )
+
+        ocr_text = ocr_result.get("text", "")
+
+        # --------------------------------------------------
+        # 4. Determine script
+        # --------------------------------------------------
+
+        params = job.parameters or {}
+
+        script = params.get(
+            "script",
+            "Devanagari",
+        )
+
+        # --------------------------------------------------
+        # 5. Run Gemini / VLM
+        # --------------------------------------------------
+
+        vlm_service = VLMService()
+
+        vlm_result = vlm_service.process(
+            page_id=page.id,
+            input_data={
+                "image_path": str(image_path),
+                "ocr_text": ocr_text,
+                "script": script,
+            },
+        )
+
+        # --------------------------------------------------
+        # 6. Build final result
+        # --------------------------------------------------
+
+        result = {
+            "page_id": page.id,
+            "image_path": str(image_path),
+
+            "ocr": {
+                "text": ocr_text,
+                "regions": ocr_result.get(
+                    "regions",
+                    [],
+                ),
+            },
+
+            "vlm": {
+                "model": vlm_result.get(
+                    "model"
+                ),
+                "script": vlm_result.get(
+                    "script"
+                ),
+                "analysis": vlm_result.get(
+                    "analysis"
+                ),
+            },
+
+            "final_transcription": vlm_result.get(
+                "analysis",
+                "",
+            ),
+        }
+
+        # --------------------------------------------------
+        # 7. Complete job
+        # --------------------------------------------------
 
         job.status = "completed"
         job.result_metadata = result
@@ -47,6 +142,7 @@ def run_ocr_job(
         return result
 
     except Exception as exc:
+
         job.status = "failed"
         job.error_message = str(exc)
 
@@ -56,78 +152,40 @@ def run_ocr_job(
         raise
 
 
-def run_vlm_job(
+def run_rag_job(
     *,
     db: Session,
     job: AIJob,
 ) -> dict:
+
     page = db.get(Page, job.page_id)
 
     if page is None:
-        raise ValueError(f"Page {job.page_id} not found")
-
-    image_path = (
-        getattr(page, "processed_path", None)
-        or page.original_path
-    )
-
-    if not image_path:
         raise ValueError(
-            f"Page {page.id} has no image available to process"
+            f"Page {job.page_id} not found"
         )
 
     params = job.parameters or {}
 
-    # ---------------------------------------------------------
-    # Get OCR text
-    # ---------------------------------------------------------
+    query = params.get("query")
 
-    ocr_text = params.get("ocr_text", "")
-
-    # If OCR text was not manually supplied,
-    # look for a completed OCR job for this page.
-    if not ocr_text:
-
-        ocr_job = (
-            db.query(AIJob)
-            .filter(
-                AIJob.page_id == page.id,
-                AIJob.job_type == "OCR",
-                AIJob.status == "completed",
-            )
-            .order_by(AIJob.id.desc())
-            .first()
+    if not query:
+        raise ValueError(
+            "RAG job requires parameters.query"
         )
-
-        if ocr_job and ocr_job.result_metadata:
-            ocr_result = ocr_job.result_metadata
-
-            if isinstance(ocr_result, dict):
-                ocr_text = ocr_result.get("text", "")
-
-    # ---------------------------------------------------------
-    # Get script
-    # ---------------------------------------------------------
-
-    script = params.get("script", "unknown")
-
-    # ---------------------------------------------------------
-    # Run Gemini VLM
-    # ---------------------------------------------------------
 
     job.status = "processing"
     db.commit()
     db.refresh(job)
 
     try:
-        vlm_service = VLMService()
+        rag_service = RAGService()
 
-        result = vlm_service.process(
+        result = rag_service.process(
             page_id=page.id,
             input_data={
-                "image_path": str(image_path),
-                "ocr_text": ocr_text,
-                "script": script,
+                "query": query,
+                "limit": params.get("limit", 5),
             },
         )
 
@@ -144,6 +202,85 @@ def run_vlm_job(
         job.error_message = str(exc)
 
         db.commit()
+
+        raise
+
+def run_ai_job(
+    *,
+    db: Session,
+    job: AIJob,
+) -> dict:
+
+    if job.job_type == "RAG":
+        return run_rag_job(
+            db=db,
+            job=job,
+        )
+
+    if job.job_type == "RECONSTRUCTION":
+        return run_reconstruction_job(
+            db=db,
+            job=job,
+        )
+
+    if job.job_type in {
+        "OCR",
+        "LLM_ANALYSIS",
+        "VLM",
+    }:
+        return run_ocr_vlm_job(
+            db=db,
+            job=job,
+        )
+
+    raise ValueError(
+        f"No AI runner implemented for job type: {job.job_type}"
+    )
+
+def run_reconstruction_job(
+    *,
+    db: Session,
+    job: AIJob,
+) -> dict:
+    page = db.get(Page, job.page_id)
+
+    if page is None:
+        raise ValueError(f"Page {job.page_id} not found")
+
+    params = job.parameters or {}
+
+    ocr_text = params.get("ocr_text", "")
+    corrected_text = params.get("corrected_text", "")
+    rag_context = params.get("rag_context", "")
+    script = params.get("script", "unknown")
+
+    job.status = "processing"
+    db.commit()
+    db.refresh(job)
+
+    try:
+        service = ReconstructionService()
+
+        result = service.process(
+            page_id=page.id,
+            input_data={
+                "ocr_text": ocr_text,
+                "corrected_text": corrected_text,
+                "rag_context": rag_context,
+                "script": script,
+            },
+        )
+
+        job.status = "completed"
+        job.result_metadata = result
+        db.commit()
         db.refresh(job)
+
+        return result
+
+    except Exception as exc:
+        job.status = "failed"
+        job.error_message = str(exc)
+        db.commit()
 
         raise

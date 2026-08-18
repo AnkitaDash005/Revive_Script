@@ -2,12 +2,11 @@ import os
 from pathlib import Path
 from typing import Any, ClassVar
 
+from app.services.ai.base import AIService
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from PIL import Image
-
-from app.services.ai.base import AIService
 
 load_dotenv()
 
@@ -84,28 +83,73 @@ class VLMService(AIService):
         script: str,
     ) -> str:
         return f"""
-You are an expert paleographer assisting with the digital preservation of historical manuscripts.
+        You are an expert paleographer assisting with the digital preservation of historical manuscripts.
 
-Target Script: {script}
+        Target Script: {script}
 
-Initial OCR Hypothesis:
---- OCR TEXT ---
-{ocr_text if ocr_text else "[None provided]"}
---- END OCR TEXT ---
+        Initial OCR Hypothesis:
+        --- OCR TEXT ---
+        {ocr_text if ocr_text else "[None provided]"}
+        --- END OCR TEXT ---
 
-Instructions:
-1. Examine the manuscript image and provide a precise transcription of all visible lines.
-2. Correct OCR misreadings, dropped ligatures, and diacritics.
-3. Transcribe only what is visually legible. Do not guess or extrapolate obscured sections.
-4. Output directly in the format below without preliminary greetings, disclaimers, or conversational filler.
+        Instructions:
+        1. Examine the manuscript image and provide a precise transcription of all visible lines.
+        2. Correct OCR misreadings, dropped ligatures, and diacritics.
+        3. Transcribe only what is visually legible. Do not guess or extrapolate obscured sections.
+        4. Output directly in the format below without preliminary greetings, disclaimers, or conversational filler.
 
-Format:
-CORRECTED_TEXT:
-<final line-by-line transcription>
+        Format:
+        CORRECTED_TEXT:
+        <final line-by-line transcription>
 
-CONFIDENCE:
-<high / medium / low>
+        CONFIDENCE:
+        <high / medium / low>
 
-NOTES:
-<1-2 concise observations regarding script, line breaks, or damage>
-""".strip()
+        NOTES:
+        <1-2 concise observations regarding script, line breaks, or damage>
+        """.strip()
+
+    def generate_from_context(
+    self,
+    *,
+    query: str,
+    context: str,
+) -> str:
+            """
+            Generate a grounded answer using retrieved manuscript context.
+            """
+
+            client = self._get_client()
+
+            prompt = f"""
+        You are an assistant for historical manuscript research.
+
+        Answer the user's question using ONLY the retrieved manuscript
+        context below.
+
+        Do not invent facts.
+        Do not use outside knowledge.
+        If the context does not contain enough information, say so.
+
+        USER QUERY:
+        {query}
+
+        RETRIEVED MANUSCRIPT CONTEXT:
+        --- BEGIN CONTEXT ---
+        {context}
+        --- END CONTEXT ---
+
+        Provide a concise research-oriented answer.
+        """.strip()
+
+            response = client.models.generate_content(
+                model=self.MODEL_NAME,
+                contents=[prompt],
+                config=types.GenerateContentConfig(
+                    temperature=0.0,
+                    max_output_tokens=1024,
+                    tools=[],
+                ),
+            )
+
+            return response.text.strip() if response.text else ""
