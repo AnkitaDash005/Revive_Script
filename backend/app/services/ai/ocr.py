@@ -1,44 +1,68 @@
+import os
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
+
+import cv2
+import numpy as np
 
 from app.services.ai.base import AIService
 
 
 class OCRService(AIService):
     """
-    OCR service.
+    OCR service for historical manuscript transcription.
 
-    B2.4:
-    - Loads a manuscript image
-    - Runs OCR
-    - Returns text, confidence and regions
+    Optimized for low-latency CPU inference on Windows.
     """
 
-    def __init__(self):
-        self._ocr = None
+    # Class-level singleton to prevent reloading models per request
+    _engine: ClassVar[Any] = None
 
-    def _load_engine(self):
+    @classmethod
+    def _load_engine(cls):
         """
-        Lazy-load PaddleOCR with the Devanagari recognition model.
+        Lazy-load and cache the PaddleOCR singleton engine.
         """
-
-        if self._ocr is None:
+        if cls._engine is None:
             from paddleocr import PaddleOCR
 
-            self._ocr = PaddleOCR(
+            cls._engine = PaddleOCR(
                 text_detection_model_name="PP-OCRv5_mobile_det",
                 text_recognition_model_name="devanagari_PP-OCRv5_mobile_rec",
-
-                # Our preprocessing pipeline already handles these.
+                
+                # Preprocessing pipeline handles document-level alignment
                 use_doc_orientation_classify=False,
                 use_doc_unwarping=False,
                 use_textline_orientation=False,
 
-                # Windows CPU workaround.
-                enable_mkldnn=False,
+                # Performance tuning
+                enable_mkldnn=True,
+                cpu_threads=min(4, os.cpu_count() or 4),
+                
+                # Constrain max detection image dimension to prevent slow processing
+                text_det_limit_side_len=1280,
+                text_det_limit_type="max",
             )
 
-        return self._ocr
+        return cls._engine
+
+    def _prepare_image(self, image_path: Path, max_side: int = 2000) -> np.ndarray:
+        """
+        Read and optionally downsample oversized manuscript images.
+        """
+        img = cv2.imread(str(image_path))
+        if img is None:
+            raise ValueError(f"Could not decode image at {image_path}")
+
+        h, w = img.shape[:2]
+        longest_side = max(h, w)
+
+        if longest_side > max_side:
+            scale = max_side / longest_side
+            new_w, new_h = int(w * scale), int(h * scale)
+            img = cv2.resize(img, (new_w, new_h), interpolation=cv2.INTER_AREA)
+
+        return img
 
     def process(
         self,
@@ -48,22 +72,17 @@ class OCRService(AIService):
     ) -> dict:
 
         if not isinstance(input_data, (str, Path)):
-            raise TypeError(
-                "OCR input_data must be an image path"
-            )
+            raise TypeError("OCR input_data must be an image path")
 
         image_path = Path(input_data)
-
         if not image_path.exists():
-            raise FileNotFoundError(
-                f"OCR image not found: {image_path}"
-            )
+            raise FileNotFoundError(f"OCR image not found: {image_path}")
 
         ocr = self._load_engine()
+        img_array = self._prepare_image(image_path)
 
-        result = ocr.predict(
-            str(image_path)
-        )
+        # Run inference directly on preprocessed NumPy array
+        result = ocr.predict(img_array)
 
         return {
             "page_id": page_id,
@@ -72,26 +91,7 @@ class OCRService(AIService):
         }
 
     def _get_result_data(self, page) -> dict:
-        """
-        Extract the actual OCR dictionary from a PaddleOCR
-        3.x Result object.
-
-        PaddleOCR 3.x returns data under:
-            {
-                "res": {
-                    "rec_texts": ...,
-                    "rec_scores": ...,
-                    "rec_polys": ...,
-                    "rec_boxes": ...
-                }
-            }
-        """
-
-        data = getattr(
-            page,
-            "json",
-            None,
-        )
+        data = getattr(page, "json", None)
 
         if callable(data):
             data = data()
@@ -100,87 +100,42 @@ class OCRService(AIService):
             return {}
 
         if isinstance(data, dict):
-            # PaddleOCR 3.x result wrapper
             if "res" in data:
                 data = data["res"]
-
             return data
 
         return {}
 
     def _extract_text(self, result) -> str:
-        """
-        Extract recognized text from PaddleOCR.
-        """
-
         texts = []
 
         for page in result:
-
             data = self._get_result_data(page)
-
             if not data:
                 continue
 
-            rec_texts = data.get(
-                "rec_texts",
-                [],
-            )
-
+            rec_texts = data.get("rec_texts", [])
             if isinstance(rec_texts, list):
-                texts.extend(
-                    str(text)
-                    for text in rec_texts
-                    if text
-                )
+                texts.extend(str(t) for t in rec_texts if t)
 
         return "\n".join(texts)
 
-    def _extract_regions(self, result) -> list:
-        """
-        Extract OCR regions, confidence scores,
-        and bounding boxes.
-        """
-
+    def _extract_regions(self, result) -> list[dict[str, Any]]:
         regions = []
 
         for page in result:
-
             data = self._get_result_data(page)
-
             if not data:
                 continue
 
-            texts = data.get(
-                "rec_texts",
-                [],
-            )
-
-            scores = data.get(
-                "rec_scores",
-                [],
-            )
-
-            boxes = data.get(
-                "rec_polys",
-                [],
-            )
+            texts = data.get("rec_texts", [])
+            scores = data.get("rec_scores", [])
+            boxes = data.get("rec_polys", [])
 
             for index, text in enumerate(texts):
+                score = scores[index] if index < len(scores) else None
+                box = boxes[index] if index < len(boxes) else None
 
-                score = None
-
-                if index < len(scores):
-                    score = scores[index]
-
-                box = None
-
-                if index < len(boxes):
-                    box = boxes[index]
-
-                # Convert NumPy values into normal Python
-                # values so the result can later be stored
-                # as JSON/database data.
                 if hasattr(box, "tolist"):
                     box = box.tolist()
 

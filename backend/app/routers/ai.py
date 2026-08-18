@@ -9,6 +9,7 @@ from app.models.page import Page
 from app.models.user import User
 from app.schemas.ai import AIJobCreate, AIJobResponse
 from datetime import datetime, timezone
+from app.services.ai.job_runner import run_vlm_job
 
 
 router = APIRouter(
@@ -24,6 +25,8 @@ ALLOWED_JOB_TYPES = {
     "RAG",
     "RECONSTRUCTION",
     "TRANSLATION",
+    "LLM_ANALYSIS",
+    "VLM"
 }
 
 
@@ -151,3 +154,62 @@ def update_ai_job(
     db.refresh(job)
 
     return job
+
+@router.post(
+    "/jobs/{job_id}/run",
+)
+def run_ai_job(
+    job_id: int,
+    db: Session = Depends(get_db),  # noqa: B008
+    current_user: User = Depends(get_current_user),  # noqa: B008
+):
+    job = db.get(AIJob, job_id)
+
+    if job is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="AI job not found",
+        )
+
+    if job.status == "processing":
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="AI job is already running",
+        )
+
+    if job.status == "completed":
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="AI job has already completed",
+        )
+
+    # Allow retry after failure
+    if job.status == "failed":
+        job.status = "pending"
+        job.error_message = None
+        db.commit()
+        db.refresh(job)
+
+    try:
+        result = run_vlm_job(
+            db=db,
+            job=job,
+        )
+
+        return {
+            "job_id": job.id,
+            "status": job.status,
+            "result": result,
+        }
+
+    except Exception as exc:
+        job.status = "failed"
+        job.error_message = str(exc)
+
+        db.commit()
+        db.refresh(job)
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"AI job failed: {exc}",
+        ) from exc

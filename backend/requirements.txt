@@ -30,3 +30,8 @@ rapidfuzz
 paddleocr
 paddlepaddle
 
+qwen-vl-utils
+torchvision
+hf_transfer
+google-genai
+google-genai pillow

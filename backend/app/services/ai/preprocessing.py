@@ -1,42 +1,32 @@
 from pathlib import Path
-
+from typing import Any
 import cv2
 
+from app.services.ai.base import AIService
 
-class ImagePreprocessor:
+
+class PreprocessingService(AIService):
     """
-    Handles image preprocessing before OCR.
+    Handles image preprocessing and normalization before OCR/VLM inference.
     """
 
-    def load_image(self, image_path: str):
+    def load_image(self, image_path: str | Path):
         path = Path(image_path)
-
         if not path.exists():
-            raise FileNotFoundError(
-                f"Image not found: {image_path}"
-            )
+            raise FileNotFoundError(f"Image not found: {image_path}")
 
         image = cv2.imread(str(path))
-
         if image is None:
-            raise ValueError(
-                f"Unable to read image: {image_path}"
-            )
+            raise ValueError(f"Unable to read image: {image_path}")
 
         return image
 
     def resize(self, image, max_width: int = 2000):
-        """
-        Resize very large images while maintaining aspect ratio.
-        """
-
         height, width = image.shape[:2]
-
         if width <= max_width:
             return image
 
         scale = max_width / width
-
         new_width = int(width * scale)
         new_height = int(height * scale)
 
@@ -47,24 +37,13 @@ class ImagePreprocessor:
         )
 
     def grayscale(self, image):
-        return cv2.cvtColor(
-            image,
-            cv2.COLOR_BGR2GRAY,
-        )
+        return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     def denoise(self, image):
-        return cv2.GaussianBlur(
-            image,
-            (3, 3),
-            0,
-        )
+        return cv2.GaussianBlur(image, (3, 3), 0)
 
     def enhance_contrast(self, image):
-        clahe = cv2.createCLAHE(
-            clipLimit=2.0,
-            tileGridSize=(8, 8),
-        )
-
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
         return clahe.apply(image)
 
     def threshold(self, image):
@@ -77,31 +56,34 @@ class ImagePreprocessor:
             2,
         )
 
-    def process(self, image_path: str):
+    def process(self, *, page_id: int | None = None, input_data: Any) -> dict:
         """
-        Run the complete preprocessing pipeline.
+        Run the complete preprocessing pipeline adhering to the AIService contract.
         """
+        if isinstance(input_data, dict):
+            image_path = input_data.get("image_path")
+        else:
+            image_path = input_data
+
+        if not image_path:
+            raise ValueError("image_path is required for preprocessing")
 
         original = self.load_image(image_path)
-
         resized = self.resize(original)
-
-        grayscale = self.grayscale(resized)
-
-        denoised = self.denoise(grayscale)
-
-        enhanced = self.enhance_contrast(
-            denoised
-        )
-
-        binary = self.threshold(
-            enhanced
-        )
+        gray = self.grayscale(resized)
+        denoised = self.denoise(gray)
+        enhanced = self.enhance_contrast(denoised)
+        binary = self.threshold(enhanced)
 
         return {
+            "page_id": page_id,
             "original": resized,
-            "grayscale": grayscale,
+            "grayscale": gray,
             "denoised": denoised,
             "enhanced": enhanced,
             "binary": binary,
         }
+
+
+# Maintain backward compatibility alias
+ImagePreprocessor = PreprocessingService
