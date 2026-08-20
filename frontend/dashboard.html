@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="LOGO.png" />
+<title>Revive Script — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #1b2620;
+    --ink-deep: #10160f;
+    --parchment: #f3ede0;
+    --parchment-warm: #ece3d2;
+    --gold: #b3903f;
+    --gold-soft: #c9a96a;
+    --forest: #1f2e22;
+    --forest-deep: #17231a;
+    --muted: #6b7268;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  html,body{
+    height:100%;
+    font-family:'Inter', sans-serif;
+    background: var(--parchment);
+    color: var(--ink);
+    overflow-x:hidden;
+  }
+
+  a{ color:inherit; text-decoration:none; }
+
+  /* ================= LAYOUT ================= */
+  .app{
+    display:grid;
+    grid-template-columns: 264px 1fr;
+    min-height:100vh;
+  }
+
+  /* ================= SIDEBAR ================= */
+  .sidebar{
+    position:relative;
+    background:
+      linear-gradient(180deg, rgba(16,22,15,0.94) 0%, rgba(16,22,15,0.97) 60%, rgba(10,14,10,0.98) 100%),
+      url('Background.png');
+    background-size: cover;
+    background-position: center 30%;
+    color: #f4efe3;
+    display:flex;
+    flex-direction:column;
+    padding: 30px 22px 26px 22px;
+    overflow:hidden;
+  }
+
+  .sidebar-particles{
+    position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+  }
+  .sp{
+    position:absolute;
+    width: var(--s,2.5px); height: var(--s,2.5px);
+    border-radius:50%;
+    background: rgba(201,169,106, var(--o,0.4));
+    box-shadow: 0 0 5px rgba(201,169,106,0.3);
+    animation: spdrift var(--dur,20s) linear infinite;
+    animation-delay: var(--delay,0s);
+    top: var(--top,50%); left: var(--left,50%);
+  }
+  @keyframes spdrift{
+    0%{ transform:translateY(0); opacity:0; }
+    8%{ opacity:var(--o,0.4); }
+    92%{ opacity:var(--o,0.4); }
+    100%{ transform:translateY(-260px); opacity:0; }
+  }
+
+  .brand{
+    position:relative; z-index:1;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding: 4px 6px 26px 6px;
+    border-bottom: 1px solid rgba(201,169,106,0.18);
+    margin-bottom: 22px;
+  }
+  .brand-mark{
+    width:42px; height:42px;
+    border-radius:50%;
+    overflow:hidden;
+    flex:none;
+    box-shadow: 0 0 0 1px rgba(201,169,106,0.5);
+  }
+  .brand-mark img{ width:100%; height:100%; object-fit:cover; }
+  .brand-name{
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    font-size:18px;
+    line-height:1.15;
+    letter-spacing:0.01em;
+  }
+  .brand-name em{
+    display:block;
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-weight:500;
+    font-size:12px;
+    color: var(--gold-soft);
+    margin-top:2px;
+  }
+
+  nav{ position:relative; z-index:1; display:flex; flex-direction:column; gap:4px; flex:1; }
+  .nav-label{
+    font-size:10.5px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color: rgba(244,239,227,0.4);
+    margin: 14px 10px 8px 10px;
+  }
+  .nav-item{
+    display:flex; align-items:center; gap:13px;
+    padding: 11px 14px;
+    border-radius: 10px;
+    font-size:14px;
+    font-weight:500;
+    color: rgba(244,239,227,0.78);
+    transition: background .2s ease, color .2s ease, transform .2s ease;
+    position:relative;
+  }
+  .nav-item svg{ width:17px; height:17px; flex:none; opacity:0.85; }
+  .nav-item:hover{ background: rgba(201,169,106,0.08); color:#f4efe3; transform: translateX(2px); }
+  .nav-item.active{
+    background: linear-gradient(90deg, rgba(201,169,106,0.16), rgba(201,169,106,0.03));
+    color: #f4efe3;
+    box-shadow: inset 3px 0 0 var(--gold-soft);
+  }
+  .nav-item.active svg{ opacity:1; color: var(--gold-soft); }
+
+  .sidebar-footer{
+    position:relative; z-index:1;
+    margin-top:18px;
+    padding-top:18px;
+    border-top: 1px solid rgba(201,169,106,0.18);
+    font-size:11.5px;
+    color: rgba(244,239,227,0.45);
+    display:flex; align-items:center; gap:9px;
+  }
+  .sidebar-footer svg{ width:14px; height:14px; color: var(--gold-soft); flex:none; }
+
+  /* ================= MAIN ================= */
+  main{
+    background: var(--parchment);
+    position:relative;
+    min-height:100vh;
+  }
+  main::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image: radial-gradient(rgba(120,100,60,0.05) 1px, transparent 1px);
+    background-size: 3px 3px;
+    opacity:0.6;
+    pointer-events:none;
+  }
+
+  .topbar{
+    position:relative; z-index:1;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:20px;
+    padding: 22px 40px;
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+    background: rgba(247,242,231,0.7);
+    backdrop-filter: blur(6px);
+    position:sticky; top:0;
+  }
+  .search{
+    position:relative;
+    flex:1; max-width:420px;
+  }
+  .search input{
+    width:100%;
+    background:#efe8d8;
+    border:1px solid rgba(0,0,0,0.06);
+    border-radius:12px;
+    padding: 12px 16px 12px 42px;
+    font-size:14px;
+    font-family:'Inter', sans-serif;
+    color: var(--ink);
+    outline:none;
+    transition: border-color .25s ease, background .25s ease, box-shadow .25s ease;
+  }
+  .search input::placeholder{ color:#8b8577; }
+  .search input:focus{ background:#fff; border-color:var(--gold); box-shadow:0 0 0 3px rgba(179,144,63,0.12); }
+  .search svg{
+    position:absolute; left:14px; top:50%; transform:translateY(-50%);
+    width:16px; height:16px; color:#7a7563; pointer-events:none;
+  }
+
+  .topbar-right{ display:flex; align-items:center; gap:18px; flex:none; }
+  .icon-btn{
+    width:38px; height:38px;
+    border-radius:50%;
+    border:1px solid rgba(0,0,0,0.08);
+    background:#fff;
+    display:flex; align-items:center; justify-content:center;
+    color: var(--ink);
+    cursor:pointer;
+    transition: box-shadow .2s ease, border-color .2s ease;
+  }
+  .icon-btn:hover{ box-shadow:0 4px 12px rgba(0,0,0,0.08); border-color: rgba(179,144,63,0.4); }
+  .icon-btn svg{ width:16px; height:16px; }
+
+  .user-chip{
+    display:flex; align-items:center; gap:10px;
+    padding: 6px 14px 6px 6px;
+    border-radius: 999px;
+    border: 1px solid rgba(0,0,0,0.08);
+    background:#fff;
+    cursor:pointer;
+    transition: box-shadow .2s ease;
+  }
+  .user-chip:hover{ box-shadow:0 4px 12px rgba(0,0,0,0.08); }
+  .user-avatar{
+    width:30px; height:30px;
+    border-radius:50%;
+    background: linear-gradient(160deg, var(--forest), var(--forest-deep));
+    color: var(--gold-soft);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    font-size:13px;
+  }
+  .user-name{ font-size:13.5px; font-weight:600; color:var(--ink); }
+
+  /* ================= CONTENT ================= */
+  .content{ position:relative; z-index:1; padding: 36px 40px 60px 40px; max-width:1180px; }
+
+  .welcome-eyebrow{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-size:16px;
+    color: var(--gold);
+    margin-bottom:6px;
+  }
+  .welcome h1{
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    font-size: clamp(26px, 3vw, 34px);
+    color: var(--ink);
+    margin-bottom: 30px;
+    letter-spacing:-0.01em;
+  }
+
+  .section-title{
+    font-family:'Playfair Display', serif;
+    font-weight:600;
+    font-size:19px;
+    color: var(--ink);
+    margin: 8px 0 16px 0;
+    display:flex; align-items:baseline; gap:10px;
+  }
+  .section-title .rule{
+    flex:1; height:1px; background: rgba(0,0,0,0.09);
+  }
+
+  /* ---- stat cards ---- */
+  .stats{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  .stat-card{
+    position:relative;
+    background: rgba(247,242,231,0.97);
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 16px;
+    padding: 24px 24px 20px 24px;
+    box-shadow: 0 10px 26px rgba(23,35,26,0.06);
+    overflow:hidden;
+    transition: transform .3s ease, box-shadow .3s ease;
+  }
+  .stat-card::before{
+    content:"";
+    position:absolute; left:0; top:0; bottom:0; width:3px;
+    background: linear-gradient(180deg, var(--gold-soft), var(--gold));
+  }
+  .stat-card:hover{ transform: translateY(-3px); box-shadow: 0 16px 32px rgba(23,35,26,0.1); }
+  .stat-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+  .stat-icon{
+    width:38px; height:38px;
+    border-radius:10px;
+    background: rgba(179,144,63,0.1);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .stat-icon svg{ width:18px; height:18px; color: var(--gold); }
+  .stat-value{
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    font-size: 34px;
+    color: var(--ink);
+    line-height:1;
+    margin-bottom:6px;
+  }
+  .stat-label{
+    font-size:12.5px;
+    letter-spacing:0.04em;
+    color: var(--muted);
+    text-transform:uppercase;
+  }
+
+  /* ---- recent collections: manuscript strip cards ---- */
+  .collections{ display:flex; flex-direction:column; gap:14px; margin-bottom:40px; }
+  .manu-card{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    background: rgba(247,242,231,0.97);
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 14px;
+    padding: 16px 22px 16px 18px;
+    box-shadow: 0 8px 20px rgba(23,35,26,0.05);
+    cursor:pointer;
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .manu-card:hover{
+    transform: translateX(4px);
+    box-shadow: 0 12px 26px rgba(23,35,26,0.1);
+    border-color: rgba(179,144,63,0.3);
+  }
+  .manu-cord{
+    flex:none;
+    width:34px; height:34px;
+    border-radius:50%;
+    border: 1.5px solid var(--gold);
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+  }
+  .manu-cord::after{
+    content:"";
+    position:absolute; width:6px; height:6px; border-radius:50%;
+    background: var(--ink-deep);
+  }
+  .manu-body{ flex:1; min-width:0; }
+  .manu-title{
+    font-family:'Playfair Display', serif;
+    font-weight:600;
+    font-size:16px;
+    color: var(--ink);
+    margin-bottom:3px;
+  }
+  .manu-sub{ font-size:12.5px; color: var(--muted); }
+  .manu-meta{
+    flex:none;
+    display:flex; align-items:center; gap:8px;
+    font-size:12px;
+    color: var(--gold);
+    font-weight:600;
+    letter-spacing:0.02em;
+  }
+  .manu-meta svg{ width:14px; height:14px; }
+
+  /* ---- quick actions ---- */
+  .quick-actions{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:20px;
+  }
+  .qa-card{
+    background: linear-gradient(165deg, var(--forest), var(--forest-deep));
+    color:#f4efe3;
+    border-radius:16px;
+    padding: 22px;
+    position:relative;
+    overflow:hidden;
+    box-shadow: 0 12px 26px rgba(16,22,15,0.25);
+  }
+  .qa-card svg{ width:22px; height:22px; color: var(--gold-soft); margin-bottom:14px; }
+  .qa-card h4{ font-family:'Playfair Display', serif; font-size:16px; font-weight:600; margin-bottom:6px; }
+  .qa-card p{ font-size:12.5px; color: rgba(244,239,227,0.65); line-height:1.5; margin-bottom:16px; }
+  .qa-link{ font-size:12.5px; font-weight:600; color: var(--gold-soft); display:flex; align-items:center; gap:6px; }
+  .qa-link svg{ width:12px; height:12px; margin:0; color: var(--gold-soft); transition: transform .2s ease; }
+  .qa-card:hover .qa-link svg{ transform: translateX(3px); }
+
+  /* ================= RESPONSIVE ================= */
+  @media (max-width: 980px){
+    .app{ grid-template-columns: 1fr; }
+    .sidebar{ display:none; }
+    .stats{ grid-template-columns: 1fr; }
+    .quick-actions{ grid-template-columns: 1fr; }
+    .content{ padding: 28px 20px 50px 20px; }
+    .topbar{ padding: 18px 20px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+      <div class="sidebar-particles" id="particles"></div>
+
+      <div class="brand">
+        <div class="brand-mark"><img src="LOGO.png" alt="Revive Script"></div>
+        <div class="brand-name">Revive Script<em>Restore. Reconstruct. Preserve.</em></div>
+      </div>
+
+      <nav>
+        <a href="dashboard.html" class="nav-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
+          Dashboard
+        </a>
+        <a href="collections.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg>
+          Collections
+        </a>
+        <a href="manuscripts.html" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>
+            Manuscripts
+        </a>
+        <div class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></svg>
+          AI Jobs
+        </div>
+        <a href="search.html" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            Search
+        </a>
+        <a href="provenance.html" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+            Provenance
+        </a>
+
+        <div class="nav-label">System</div>
+        <a href="settings.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+        Supporting Indian Scripts &amp; Collections
+      </div>
+    </aside>
+
+    <!-- ============ MAIN ============ -->
+    <main>
+      <div class="topbar">
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input type="text" id="topbarSearch" placeholder="Search collections..." onkeydown="if(event.key==='Enter') window.location.href='search.html?q='+encodeURIComponent(this.value)">
+        </div>
+        <div class="topbar-right">
+          <div class="icon-btn" title="Notifications">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+          </div>
+          <a href="settings.html" class="user-chip">
+            <div class="user-avatar">A</div>
+            <div class="user-name">Ankita</div>
+          </a>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="welcome">
+          <div class="welcome-eyebrow">Welcome back</div>
+          <h1>Good to see you, Ankita</h1>
+        </div>
+
+        <div class="section-title">Your Research<div class="rule"></div></div>
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-top">
+              <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg>
+              </div>
+            </div>
+            <div class="stat-value">12</div>
+            <div class="stat-label">Collections</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top">
+              <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>
+              </div>
+            </div>
+            <div class="stat-value">34</div>
+            <div class="stat-label">Manuscripts</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top">
+              <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+              </div>
+            </div>
+            <div class="stat-value">8</div>
+            <div class="stat-label">Pending</div>
+          </div>
+        </div>
+
+        <div class="section-title">Recent Collections<div class="rule"></div></div>
+        <div class="collections">
+          <div class="manu-card">
+            <div class="manu-cord"></div>
+            <div class="manu-body">
+              <div class="manu-title">Odia Palm Manuscripts</div>
+              <div class="manu-sub">Palm-leaf · Odisha · 14 folios</div>
+            </div>
+            <div class="manu-meta">
+              Open
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+          </div>
+          <div class="manu-card">
+            <div class="manu-cord"></div>
+            <div class="manu-body">
+              <div class="manu-title">Temple Records</div>
+              <div class="manu-sub">Stone inscription · Copper plate · 9 folios</div>
+            </div>
+            <div class="manu-meta">
+              Open
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+          </div>
+          <div class="manu-card">
+            <div class="manu-cord"></div>
+            <div class="manu-body">
+              <div class="manu-title">Historical Documents</div>
+              <div class="manu-sub">Paper manuscript · Mixed scripts · 21 folios</div>
+            </div>
+            <div class="manu-meta">
+              Open
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">Quick Actions<div class="rule"></div></div>
+        <div class="quick-actions">
+          <div class="qa-card">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg>
+            <h4>New Collection</h4>
+            <p>Start a fresh archive for a set of related manuscripts.</p>
+            <div class="qa-link">Create now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+          </div>
+          <div class="qa-card">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></svg>
+            <h4>Run AI Restoration</h4>
+            <p>Enhance faded text and reconstruct missing fragments.</p>
+            <div class="qa-link">Start a job <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+          </div>
+          <div class="qa-card">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+            <h4>Verify Provenance</h4>
+            <p>Review scholar annotations awaiting your sign-off.</p>
+            <div class="qa-link">Review queue <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+<script>
+  const field = document.getElementById('particles');
+  const COUNT = 14;
+  for (let i = 0; i < COUNT; i++) {
+    const p = document.createElement('div');
+    p.className = 'sp';
+    const size = (Math.random() * 2 + 1.2).toFixed(1);
+    const dur = (Math.random() * 12 + 16).toFixed(1);
+    const delay = (Math.random() * 16).toFixed(1);
+    const top = (Math.random() * 100).toFixed(1);
+    const left = (Math.random() * 100).toFixed(1);
+    const o = (Math.random() * 0.3 + 0.15).toFixed(2);
+    p.style.setProperty('--s', size + 'px');
+    p.style.setProperty('--dur', dur + 's');
+    p.style.setProperty('--delay', delay + 's');
+    p.style.setProperty('--top', top + '%');
+    p.style.setProperty('--left', left + '%');
+    p.style.setProperty('--o', o);
+    field.appendChild(p);
+  }
+</script>
+
+</body>
+</html>

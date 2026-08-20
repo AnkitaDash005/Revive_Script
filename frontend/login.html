@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="LOGO.png" />
+<title>Revive Script</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #1b2620;
+    --ink-deep: #10160f;
+    --parchment: #f3ede0;
+    --parchment-warm: #ece3d2;
+    --gold: #b3903f;
+    --gold-soft: #c9a96a;
+    --forest: #1f2e22;
+    --forest-deep: #17231a;
+    --muted: #6b7268;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  html,body{
+    height:100%;
+    font-family: 'Inter', sans-serif;
+    background: var(--ink-deep);
+    overflow-x:hidden;
+  }
+
+  /* ---------- BACKGROUND STAGE ---------- */
+  .stage{
+    position:relative;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 20px 24px;
+ }
+
+  .bg-photo{
+    position:fixed;
+    inset:0;
+    background-image:
+      linear-gradient(115deg, rgba(10,14,10,0.72) 0%, rgba(15,20,14,0.5) 40%, rgba(10,14,10,0.75) 100%),
+      url('Background.png');
+    background-size: cover;
+    background-position: center 40%;
+    filter: saturate(0.85) contrast(1.05);
+    transform: scale(1.08);
+    transition: transform 1.4s cubic-bezier(.2,.7,.2,1);
+    z-index:0;
+}
+
+  .bg-vignette{
+    position:fixed;
+    inset:0;
+    z-index:1;
+    background:
+      radial-gradient(ellipse at 20% 30%, rgba(0,0,0,0) 0%, rgba(8,11,8,0.35) 70%),
+      linear-gradient(180deg, rgba(8,12,9,0.15) 0%, rgba(8,12,9,0.55) 100%);
+    pointer-events:none;
+  }
+
+  /* drifting dust / fiber particles */
+  .particle-field{
+    position:fixed;
+    inset:0;
+    z-index:2;
+    pointer-events:none;
+    overflow:hidden;
+  }
+  .particle{
+    position:absolute;
+    width: var(--s, 3px);
+    height: var(--s, 3px);
+    border-radius:50%;
+    background: rgba(201, 169, 106, var(--o, 0.5));
+    box-shadow: 0 0 6px rgba(201,169,106,0.35);
+    animation: drift var(--dur, 18s) linear infinite;
+    animation-delay: var(--delay, 0s);
+    top: var(--top, 50%);
+    left: var(--left, 50%);
+  }
+  @keyframes drift{
+    0%   { transform: translate(0,0) translateY(0); opacity:0; }
+    8%   { opacity: var(--o, 0.5); }
+    50%  { transform: translate(var(--dx, 30px), -140px); }
+    92%  { opacity: var(--o, 0.5); }
+    100% { transform: translate(var(--dx2, -20px), -320px); opacity:0; }
+  }
+
+  /* ---------- CONTENT GRID ---------- */
+  .frame{
+    position:relative;
+    z-index:3;
+    width:100%;
+    max-width: 1180px;
+    display:grid;
+    grid-template-columns: 1.15fr 0.95fr;
+    align-items:stretch;
+    gap: 0;
+    opacity:0;
+    animation: rise-in 0.9s cubic-bezier(.2,.7,.2,1) 0.15s forwards;
+  }
+  @keyframes rise-in{
+    from{ opacity:0; transform: translateY(18px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  /* ---------- LEFT: HERO PANEL ---------- */
+  .hero{
+    position:relative;
+    padding: 32px 56px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items: center;
+    text-align: center;
+    color: #f4efe3;
+    min-height: auto;
+ }
+
+  .hero-emblem{
+    width:84px; height:84px;
+    border:1px solid rgba(201,169,106,0.55);
+    border-radius: 44% 44% 44% 44% / 55% 55% 45% 45%;
+    border-top-left-radius: 999px;
+    border-top-right-radius: 999px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom: 18px;
+    position:relative;
+    animation: glow-pulse 4.5s ease-in-out infinite;
+  }
+  @keyframes glow-pulse{
+    0%,100%{ box-shadow: 0 0 0px rgba(201,169,106,0); }
+    50%{ box-shadow: 0 0 22px rgba(201,169,106,0.28); }
+  }
+  /* .hero-emblem svg{ width:45px; height:45px; } */
+  .spark-sm{
+    top: 18px; right: 2px;
+    width: 6px; height: 6px;
+    opacity: 0.7;
+    animation-delay: 0.8s;
+}
+  .emblem-glyph{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:600;
+    font-size:36px;
+    line-height:1;
+    color:#e9dcb8;
+    transform: translateY(-1px);
+  }
+  .spark{
+    position:absolute;
+    top:6px; right:14px;
+    width:9px; height:9px;
+    color: var(--gold-soft);
+    animation: twinkle 2.6s ease-in-out infinite;
+  }
+  @keyframes twinkle{
+    0%,100%{ opacity:0.25; transform: scale(0.8); }
+    50%{ opacity:1; transform: scale(1.15); }
+  }
+
+  .hero h1{
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    font-size: clamp(24px, 2.4vw, 38px);
+    line-height:1.12;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+    white-space: nowrap;
+ }
+  .hero h1 span{
+    display:inline-block;
+    opacity:0;
+    animation: word-in 0.6s ease forwards;
+  }
+  .hero h1 span:nth-child(1){ animation-delay: 0.35s; }
+  .hero h1 span:nth-child(2){ animation-delay: 0.55s; }
+  .hero h1 span:nth-child(3){ animation-delay: 0.75s; }
+  @keyframes word-in{
+    from{ opacity:0; transform: translateY(10px); filter: blur(3px); }
+    to{ opacity:1; transform: translateY(0); filter: blur(0); }
+  }
+
+  .hero p.tagline{
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 21px;
+    color: var(--gold-soft);
+    font-weight: 500;
+    margin-bottom: 40px;
+    opacity:0;
+    animation: rise-in 0.7s ease 0.95s forwards;
+  }
+
+  .features{
+    display:flex;
+    gap: 44px;
+    opacity:0;
+    animation: rise-in 0.7s ease 1.15s forwards;
+  }
+  .feature{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    width: 108px;
+  }
+  .feature-icon{
+    width:56px; height:56px;
+    border-radius:50%;
+    border:1px solid rgba(201,169,106,0.4);
+    background: rgba(20,26,20,0.35);
+    backdrop-filter: blur(2px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:12px;
+    transition: transform .35s ease, border-color .35s ease, box-shadow .35s ease;
+  }
+  .feature:hover .feature-icon{
+    transform: translateY(-4px);
+    border-color: rgba(201,169,106,0.85);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.35), 0 0 16px rgba(201,169,106,0.2);
+  }
+  .feature-icon svg{ width:24px; height:24px; color: var(--gold-soft); }
+  .feature-icon.devanagari{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:600;
+    font-size:22px;
+    color: var(--gold-soft);
+  }
+  .feature h4{
+    font-family:'Playfair Display', serif;
+    font-size:15px;
+    font-weight:600;
+    margin-bottom:4px;
+  }
+  .feature p{
+    font-size:11.5px;
+    color: rgba(244,239,227,0.65);
+    line-height:1.4;
+  }
+
+  .support-chip{
+    position:absolute;
+    left: 0;
+    bottom: -8px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background: rgba(15,20,15,0.55);
+    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(6px);
+    padding: 11px 18px;
+    border-radius: 999px;
+    font-size: 13px;
+    color: #eee7d6;
+    opacity:0;
+    animation: rise-in 0.7s ease 1.3s forwards;
+  }
+  .support-chip svg{ width:16px; height:16px; color: var(--gold-soft); }
+
+  /* ---------- RIGHT: LOGIN CARD ---------- */
+  .card-wrap{
+    display:flex;
+    align-items:stretch;
+  }
+  .card{
+    position:relative;
+    width:100%;
+    background: rgba(247, 242, 231, 0.97);
+    border-radius: 22px;
+    box-shadow:
+      0 30px 70px rgba(0,0,0,0.45),
+      0 4px 14px rgba(0,0,0,0.25),
+      inset 0 1px 0 rgba(255,255,255,0.6);
+    padding: 40px 44px 0 44px;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+
+  .card::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image: radial-gradient(rgba(120,100,60,0.05) 1px, transparent 1px);
+    background-size: 3px 3px;
+    opacity:0.5;
+    pointer-events:none;
+  }
+
+  .lang-select{
+    position:absolute;
+    top: 28px; right: 28px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.08);
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor:pointer;
+    user-select:none;
+    transition: box-shadow .2s ease;
+  }
+  .lang-select:hover{ box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+  .lang-select svg{ width:14px; height:14px; opacity:0.6; }
+.lang-dropdown{
+  display:none;
+  position:absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background:#fff;
+  border:1px solid rgba(0,0,0,0.08);
+  border-radius:10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  overflow:hidden;
+  min-width: 120px;
+  z-index: 10;
+}
+.lang-dropdown.open{ display:block; }
+.lang-option{
+  padding: 10px 14px;
+  font-size:13px;
+  cursor:pointer;
+  transition: background .15s ease;
+}
+.lang-option:hover{ background:#f3ede0; }
+
+  .card-top{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    padding-top: 8px;
+    margin-bottom: 30px;
+  }
+
+  .brand-ring{
+    width:120px; height:120px;
+    border-radius:50%;
+    border: 1.5px solid var(--gold);
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:18px;
+    position:relative;
+  }
+  .brand-ring--logo{ border: none; }
+  .brand-ring--logo::after{ display:none; }
+  .brand-logo-img{
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  }
+  .brand-ring::after{
+    content:"";
+    position:absolute; inset:-6px;
+    border-radius:50%;
+    border: 1px solid rgba(179,144,63,0.25);
+    animation: ring-breathe 3.5s ease-in-out infinite;
+  }
+  @keyframes ring-breathe{
+    0%,100%{ transform: scale(1); opacity:0.6; }
+    50%{ transform: scale(1.08); opacity:0.15; }
+  }
+  .brand-ring svg{ width:28px; height:28px; color: var(--forest); }
+
+  .card-top h2{
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    font-size: 27px;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .card-top p{
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  form{ display:flex; flex-direction:column; gap:18px; }
+
+  .field{
+    position:relative;
+  }
+  .field input{
+    width:100%;
+    background: #efe8d8;
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 12px;
+    padding: 16px 46px 16px 46px;
+    font-size: 15px;
+    font-family:'Inter', sans-serif;
+    color: var(--ink);
+    outline:none;
+    transition: border-color .25s ease, background .25s ease, box-shadow .25s ease;
+  }
+  .field input::placeholder{ color: #8b8577; }
+  .field input:focus{
+    background:#fff;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(179,144,63,0.12);
+  }
+  .field .icon-left{
+    position:absolute; left:16px; top:50%; transform:translateY(-50%);
+    color:#7a7563;
+    pointer-events:none;
+  }
+  .field .icon-left svg{ width:18px; height:18px; }
+  .field .icon-right{
+    position:absolute; right:16px; top:50%; transform:translateY(-50%);
+    color:#7a7563;
+    cursor:pointer;
+    display:flex;
+  }
+  .field .icon-right svg{ width:18px; height:18px; }
+
+  .row-between{
+    display:flex;
+    justify-content:flex-end;
+    margin-top:-6px;
+  }
+  .forgot{
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration:none;
+    transition: color .2s ease;
+  }
+  .forgot:hover{ color: var(--gold); text-decoration:underline; }
+
+  .btn-primary{
+    margin-top: 6px;
+    background: linear-gradient(180deg, #21301f, #17231a);
+    color: #f4efe3;
+    border:none;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 15.5px;
+    font-weight:600;
+    font-family:'Inter', sans-serif;
+    letter-spacing:0.01em;
+    cursor:pointer;
+    position:relative;
+    overflow:hidden;
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .btn-primary:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(23,35,26,0.35);
+  }
+  .btn-primary:active{ transform: translateY(0); }
+  .btn-primary::after{
+    content:"";
+    position:absolute; top:0; left:-60%;
+    width:40%; height:100%;
+    background: linear-gradient(115deg, transparent, rgba(255,255,255,0.15), transparent);
+    transform: skewX(-20deg);
+    transition: left .6s ease;
+  }
+  .btn-primary:hover::after{ left: 130%; }
+
+  .divider{
+    display:flex; align-items:center; gap:14px;
+    margin: 22px 0 18px 0;
+    color:#a39c8a; font-size:13px;
+  }
+  .divider::before, .divider::after{
+    content:""; flex:1; height:1px; background: rgba(0,0,0,0.1);
+  }
+
+  .btn-google{
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    background:#fff;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 12px;
+    padding: 14px;
+    font-size:14.5px;
+    font-weight:500;
+    color: var(--ink);
+    cursor:pointer;
+    transition: box-shadow .2s ease, transform .2s ease;
+  }
+  .btn-google:hover{ box-shadow: 0 6px 16px rgba(0,0,0,0.08); transform: translateY(-1px); }
+  .btn-google svg{ width:18px; height:18px; }
+
+  .card-footer{
+    margin-top: 28px;
+    padding: 18px 0;
+    border-top: 1px solid rgba(0,0,0,0.08);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    font-size: 13px;
+    color: var(--muted);
+    background: rgba(233,224,203,0.5);
+    margin-left:-44px; margin-right:-44px; padding-left:44px; padding-right:44px;
+  }
+  .card-footer svg{ width:16px; height:16px; color: var(--gold); }
+
+  .register-row{
+  text-align:center;
+  font-size:13.5px;
+  color: var(--muted);
+  margin-top: 22px;
+}
+.register-link{
+  color: var(--gold);
+  font-weight:600;
+  margin-left:5px;
+  position:relative;
+  transition: color .2s ease;
+}
+.register-link::after{
+  content:"";
+  position:absolute; left:0; bottom:-2px;
+  width:100%; height:1px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform .25s ease;
+}
+.register-link:hover{ color: var(--gold-soft); }
+.register-link:hover::after{ transform: scaleX(1); transform-origin: left; }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 980px){
+    .frame{ grid-template-columns: 1fr; max-width: 460px; }
+    .hero{ display:none; }
+    .card{ border-radius: 20px; padding: 36px 28px 0 28px; }
+    .card-footer{ margin-left:-28px; margin-right:-28px; padding-left:28px; padding-right:28px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="bg-photo" id="bgPhoto"></div>
+  <div class="bg-vignette"></div>
+  <div class="particle-field" id="particles"></div>
+
+  <div class="stage">
+    <div class="frame">
+
+      <!-- LEFT HERO -->
+      <div class="hero">
+        <div class="hero-emblem">
+            <svg viewBox="0 0 64 64" fill="none" stroke="#e9dcb8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:65px;height:65px;">
+                <path d="M32 20v26"/>
+                <path d="M32 20c-4-4-10-5-16-4v22c6-1 12 0 16 4"/>
+                <path d="M32 20c4-4 10-5 16-4v22c-6-1-12 0-16 4"/>
+                <path d="M44 14l6-6M50 8l-2 6 6-2z" fill="#e9dcb8" stroke="#e9dcb8"/>
+            </svg>
+            <svg class="spark" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0l1.8 6.2L20 8l-6.2 1.8L12 16l-1.8-6.2L4 8l6.2-1.8z"/>
+            </svg>
+            <svg class="spark spark-sm" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0l1.8 6.2L20 8l-6.2 1.8L12 16l-1.8-6.2L4 8l6.2-1.8z"/>
+            </svg>
+        </div>
+
+        <h1><span>Restore.</span> <span>Reconstruct.</span> <span>Preserve.</span></h1>
+        <p class="tagline" data-i18n="tagline">AI-assisted restoration for our literary heritage.</p>
+
+        <div class="features">
+          <div class="feature">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/>
+                <path d="M9 12h6M9 16h6M9 8h2"/>
+              </svg>
+            </div>
+            <h4 data-i18n="enhance_title">Enhance</h4>
+            <p data-i18n="enhance_desc">Faded texts &amp; images</p>
+          </div>
+          <div class="feature">
+            <div class="feature-icon devanagari">अ</div>
+            <h4 data-i18n="reconstruct_title">Reconstruct</h4>
+            <p data-i18n="reconstruct_desc">Smart suggestions</p>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 2l7 3v6c0 5-3.4 8.6-7 11-3.6-2.4-7-6-7-11V5z"/>
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            <h4 data-i18n="verify_title">Verify</h4>
+            <p data-i18n="verify_desc">Scholar-in-the-loop</p>
+          </div>
+        </div>
+
+        <div class="support-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>
+          </svg>
+          <span data-i18n="supporting_scripts"></span>Supporting Indian Scripts &amp; Collections</span>
+        </div>
+      </div>
+
+      <!-- RIGHT CARD -->
+      <div class="card-wrap">
+        <div class="card">
+          <div class="lang-select" id="langSelect">
+                English
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                <div class="lang-dropdown" id="langDropdown">
+                    <div class="lang-option" data-lang="English">English</div>
+                    <div class="lang-option" data-lang="हिन्दी">हिन्दी</div>
+                    <div class="lang-option" data-lang="தமிழ்">தமிழ்</div>
+                    <div class="lang-option" data-lang="मराठी">मराठी</div>
+                    <div class="lang-option" data-lang="ଓଡ଼ିଆ">ଓଡ଼ିଆ</div>
+                </div>
+            </div>
+
+          <div class="card-top">
+            <div class="brand-ring brand-ring--logo">
+                <img src="LOGO.png" alt="Logo" class="brand-logo-img">
+            </div>
+            <h2 data-i18n="welcome_title">Welcome To Revive Script</h2>
+            <p data-i18n="welcome_sub">Sign in to continue your research journey</p>
+          </div>
+
+          <form onsubmit="return false;">
+            <div class="field">
+              <span class="icon-left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+              </span>
+              <input type="text" placeholder="Email or Username" autocomplete="username" data-i18n-placeholder="email_placeholder">
+            </div>
+
+            <div class="field">
+              <span class="icon-left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+              </span>
+              <input type="password" id="pwd" placeholder="Password" autocomplete="current-password" data-i18n-placeholder="password_placeholder">
+              <span class="icon-right" id="toggleEye">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" opacity="0.35"/><path d="M3 3l18 18"/></svg>
+              </span>
+            </div>
+
+            <div class="row-between">
+              <a href="#" class="forgot" data-i18n="forgot">Forgot Password?</a>
+            </div>
+
+            <button class="btn-primary" type="submit" onclick="window.location.href='dashboard.html'" data-i18n="signin_btn">Sign In</button>
+          </form>
+
+          <div class="divider">or</div>
+
+          <button class="btn-google" type="button" data-i18n="google_btn">
+            <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.3 35 24 35c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.2-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.6 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 7.1 29.6 5 24 5c-7.4 0-13.8 4.2-17.7 10.7z"/><path fill="#4CAF50" d="M24 45c5.4 0 10.4-2.1 14.1-5.4l-6.5-5.5C29.6 35.7 26.9 37 24 37c-5.3 0-9.7-3.6-11.3-8.5l-6.6 5.1C9.9 40.4 16.4 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.3 5.6h.1l6.5 5.5C36.6 40.5 44 36 44 24c0-1.2-.1-2.4-.4-3.5z"/></svg>
+            <span data-i18n="google_btn">Continue with Google</span>
+          </button>
+
+          <div class="register-row">
+            <span data-i18n="register_text">Don't have an account?</span>
+            <a href="#" class="register-link" data-i18n="register_link">Register</a>
+          </div>
+
+          <div class="card-footer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 10l9-6 9 6"/><path d="M5 10v9M19 10v9M9 19v-6h6v6"/><path d="M3 19h18"/></svg>
+            <span data-i18n="footer_text">Preserving heritage. Empowering scholars.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+    const translations = {
+  English: { tagline:"AI-assisted restoration for our literary heritage.", welcome_title:"Welcome to Revive Script", welcome_sub:"Sign in to continue your research journey", email_placeholder:"Email or Username", password_placeholder:"Password", forgot:"Forgot Password?", signin_btn:"Sign In", google_btn:"Continue with Google", footer_text:"Preserving heritage. Empowering scholars." },
+  हिन्दी: { tagline:"हमारी साहित्यिक विरासत के लिए एआई-सहायित पुनर्स्थापन।", welcome_title:"Revive Script में आपका स्वागत है", welcome_sub:"अपनी शोध यात्रा जारी रखने के लिए साइन इन करें", email_placeholder:"ईमेल या उपयोगकर्ता नाम", password_placeholder:"पासवर्ड", forgot:"पासवर्ड भूल गए?", signin_btn:"साइन इन करें", google_btn:"Google से जारी रखें", footer_text:"विरासत का संरक्षण। शोधकर्ताओं को सशक्त बनाना।" },
+  தமிழ்: { tagline:"நமது இலக்கிய பாரம்பரியத்திற்கான AI-உதவி புனரமைப்பு.", welcome_title:"Revive Script-க்கு வரவேற்கிறோம்", welcome_sub:"உங்கள் ஆராய்ச்சி பயணத்தைத் தொடர உள்நுழையவும்", email_placeholder:"மின்னஞ்சல் அல்லது பயனர்பெயர்", password_placeholder:"கடவுச்சொல்", forgot:"கடவுச்சொல் மறந்துவிட்டதா?", signin_btn:"உள்நுழைக", google_btn:"Google மூலம் தொடரவும்", footer_text:"பாரம்பரியத்தைப் பாதுகாத்தல். அறிஞர்களை மேம்படுத்துதல்." },
+  मराठी: { tagline:"आमच्या साहित्यिक वारशासाठी एआय-सहाय्यित जीर्णोद्धार.", welcome_title:"Revive Script मध्ये आपले स्वागत आहे", welcome_sub:"तुमचा संशोधन प्रवास सुरू ठेवण्यासाठी साइन इन करा", email_placeholder:"ईमेल किंवा वापरकर्तानाव", password_placeholder:"पासवर्ड", forgot:"पासवर्ड विसरलात?", signin_btn:"साइन इन करा", google_btn:"Google सह सुरू ठेवा", footer_text:"वारसा जतन करणे. संशोधकांना सक्षम करणे." },
+  ଓଡ଼ିଆ: { tagline:"ଆମର ସାହିତ୍ୟିକ ଐତିହ୍ୟ ପାଇଁ AI-ସହାୟିତ ପୁନରୁଦ୍ଧାର।", welcome_title:"Revive Script କୁ ସ୍ୱାଗତ", welcome_sub:"ଆପଣଙ୍କର ଗବେଷଣା ଯାତ୍ରା ଜାରି ରଖିବାକୁ ସାଇନ ଇନ କରନ୍ତୁ", email_placeholder:"ଇମେଲ କିମ୍ବା ୟୁଜରନେମ", password_placeholder:"ପାସୱାର୍ଡ", forgot:"ପାସୱାର୍ଡ ଭୁଲିଗଲେ?", signin_btn:"ସାଇନ ଇନ", google_btn:"Google ସହିତ ଜାରି ରଖନ୍ତୁ", footer_text:"ଐତିହ୍ୟ ସଂରକ୍ଷଣ। ପଣ୍ଡିତମାନଙ୍କୁ ସଶକ୍ତ କରିବା।" }
+};
+
+function applyLanguage(lang) {
+  const dict = translations[lang];
+  if (!dict) return;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) el.textContent = dict[key];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (dict[key]) el.placeholder = dict[key];
+  });
+}
+  // subtle parallax on the background photo based on cursor
+  const bg = document.getElementById('bgPhoto');
+  window.addEventListener('mousemove', (e) => {
+    const x = (e.clientX / window.innerWidth - 0.5) * 12;
+    const y = (e.clientY / window.innerHeight - 0.5) * 12;
+    bg.style.transform = `scale(1.08) translate(${x}px, ${y}px)`;
+  });
+
+  // password visibility toggle
+  const pwd = document.getElementById('pwd');
+  const eye = document.getElementById('toggleEye');
+  let visible = false;
+  eye.addEventListener('click', () => {
+    visible = !visible;
+    pwd.type = visible ? 'text' : 'password';
+    eye.innerHTML = visible
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" opacity="0.35"/><path d="M3 3l18 18"/></svg>';
+  });
+
+  // generate drifting particles (ink dust / parchment fiber)
+  const field = document.getElementById('particles');
+  const COUNT = 26;
+  for (let i = 0; i < COUNT; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = (Math.random() * 2.4 + 1.4).toFixed(1);
+    const dur = (Math.random() * 14 + 14).toFixed(1);
+    const delay = (Math.random() * 18).toFixed(1);
+    const top = (Math.random() * 100).toFixed(1);
+    const left = (Math.random() * 100).toFixed(1);
+    const dx = (Math.random() * 60 - 30).toFixed(0);
+    const dx2 = (Math.random() * 80 - 40).toFixed(0);
+    const o = (Math.random() * 0.35 + 0.2).toFixed(2);
+    p.style.setProperty('--s', size + 'px');
+    p.style.setProperty('--dur', dur + 's');
+    p.style.setProperty('--delay', delay + 's');
+    p.style.setProperty('--top', top + '%');
+    p.style.setProperty('--left', left + '%');
+    p.style.setProperty('--dx', dx + 'px');
+    p.style.setProperty('--dx2', dx2 + 'px');
+    p.style.setProperty('--o', o);
+    field.appendChild(p);
+  }
+  const langSelect = document.getElementById('langSelect');
+const langDropdown = document.getElementById('langDropdown');
+langSelect.addEventListener('click', (e) => {
+  langDropdown.classList.toggle('open');
+});
+document.querySelectorAll('.lang-option').forEach(opt => {
+  opt.addEventListener('click', (e) => {
+    e.stopPropagation();
+    langSelect.firstChild.textContent = opt.dataset.lang + ' ';
+    langDropdown.classList.remove('open');
+    applyLanguage(opt.dataset.lang);
+  });
+});
+document.addEventListener('click', (e) => {
+  if (!langSelect.contains(e.target)) langDropdown.classList.remove('open');
+});
+</script>
+
+</body>
+</html>
