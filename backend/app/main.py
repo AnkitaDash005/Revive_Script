@@ -31,7 +31,9 @@ if not FRONTEND_DIR.exists():
 
 app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
 
-STORAGE_DIR = BASE_DIR / "storage"
+# STORAGE_DIR = BASE_DIR / "storage"
+BACKEND_DIR = Path(__file__).resolve().parent.parent
+STORAGE_DIR = BACKEND_DIR / "storage"
 STORAGE_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/storage", StaticFiles(directory=str(STORAGE_DIR)), name="storage")
 

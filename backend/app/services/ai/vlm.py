@@ -4,12 +4,11 @@ import re
 from pathlib import Path
 from typing import Any, ClassVar
 
+from app.services.ai.base import AIService
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from PIL import Image
-
-from app.services.ai.base import AIService
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -146,7 +145,7 @@ class VLMService(AIService):
         script: str,
     ) -> str:
         return f"""
-You are an expert paleographer assisting with the digital preservation of historical manuscripts.
+You are an expert paleographer and Sanskrit manuscript epigraphist assisting with digital preservation and restoration.
 
 Target Script: {script}
 
@@ -156,20 +155,27 @@ Initial OCR Hypothesis:
 --- END OCR TEXT ---
 
 Instructions:
-1. Examine the manuscript image and provide a precise transcription of all visible lines.
-2. Correct OCR misreadings, dropped ligatures, and diacritics.
-3. Transcribe only what is visually legible. Do not guess or extrapolate obscured sections.
-4. Output directly in the format below without preliminary greetings, disclaimers, or conversational filler.
+1. Examine the manuscript image and provide a complete, line-by-line transcription of EVERY visible line from top to bottom. Do not stop at the first line.
+2. Identify and separate margin text using the `[Left Margin]` tag. Put the main body under `[Main Text]`.
+3. RECONSTRUCT missing, stained, or torn regions. Do not skip them. Use your knowledge of Vedic Sanskrit, grammar, and context to fill in the blanks.
+4. Enclose any reconstructed or inferred text inside bold brackets, like this: `सम**[र्धयति ३]**`.
+5. Output directly in the format below without preliminary greetings or conversational filler.
 
 Format:
 CORRECTED_TEXT:
-<final line-by-line transcription>
+[Left Margin]
+<margin text>
+
+[Main Text]
+Line 1: <text>
+Line 2: <text>
+...
 
 CONFIDENCE:
 <high / medium / low>
 
 NOTES:
-<1-2 concise observations regarding script, line breaks, or damage>
+<Briefly explain what words you reconstructed and why>
 """.strip()
 
     def generate_from_context(
@@ -208,8 +214,8 @@ Provide a concise research-oriented answer.
                     model=model_candidate,
                     contents=[prompt],
                     config=types.GenerateContentConfig(
-                        temperature=0.0,
-                        max_output_tokens=1024,
+                        temperature=0.2,
+                        max_output_tokens=2048,
                     ),
                 )
                 if response and response.text:

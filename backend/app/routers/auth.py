@@ -1,7 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, status
-from fastapi.responses import RedirectResponse
-from sqlalchemy import select
-from sqlalchemy.orm import Session
+import uuid
 
 from app.core.auth import get_current_user
 from app.core.config import settings
@@ -16,6 +13,10 @@ from app.schemas.auth import (
 )
 from app.services.security import hash_password, verify_password
 from app.services.token import create_access_token
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.responses import RedirectResponse
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 router = APIRouter(
     prefix="/auth",
@@ -33,14 +34,14 @@ def register(
     db: Session = Depends(get_db),
 ):
     existing_email = db.scalar(
-    select(User).where(User.email == data.email)
-)
+        select(User).where(User.email == data.email)
+    )
 
     if existing_email:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Email already registered",
-    )
+        )
 
     existing_username = db.scalar(
         select(User).where(User.name == data.name)
@@ -50,9 +51,8 @@ def register(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Username already taken",
-    )
+        )
 
-    # Fixed: Unindented out of the 'if existing_user' block
     user = User(
         name=data.name,
         email=data.email,
@@ -124,6 +124,7 @@ def login(
         "token_type": "bearer",
     }
 
+
 @router.get("/google/login")
 async def google_login(request: Request):
     # Dynamically builds the exact callback URI matching current host/origin
@@ -138,10 +139,8 @@ async def google_callback(
 ):
     token = await oauth.google.authorize_access_token(request)
 
+    # In modern Authlib, userinfo is automatically parsed and attached to the token
     user_info = token.get("userinfo")
-    if not user_info:
-        # Fallback to parsing openid ID token if userinfo endpoint isn't auto-merged
-        user_info = await oauth.google.parse_id_token(request, token)
 
     if not user_info:
         raise HTTPException(
@@ -178,8 +177,12 @@ async def google_callback(
 
     # 3. Create new user if account doesn't exist
     if user is None:
+        # Guarantee a unique username to avoid IntegrityError crashes
+        base_name = name or email.split("@")[0]
+        unique_name = f"{base_name}_{uuid.uuid4().hex[:6]}"
+        
         user = User(
-            name=name or email.split("@")[0],
+            name=unique_name,
             email=email,
             password_hash=None,
             google_id=google_id,
@@ -217,6 +220,7 @@ async def google_callback(
         max_age=60 * 60 * 24 * 7,  # 7 days
     )
     return response
+
 
 @router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):

@@ -122,9 +122,11 @@ def run_reconstruction_job(
     if page is None:
         raise ValueError(f"Page {job.page_id} not found")
 
+    # 1. Grab the image path so the AI can actually see the page
+    image_path = getattr(page, "processed_path", None) or page.original_path
+
     params = job.parameters or {}
 
-    # If ocr_text not passed in parameters, fetch from latest OCR artifact
     ocr_text = params.get("ocr_text")
     if not ocr_text:
         latest_ocr = db.scalar(
@@ -147,6 +149,7 @@ def run_reconstruction_job(
         result = service.process(
             page_id=page.id,
             input_data={
+                "image_path": str(image_path), # <--- ADD THIS LINE
                 "ocr_text": ocr_text,
                 "corrected_text": corrected_text,
                 "rag_context": rag_context,
@@ -156,16 +159,15 @@ def run_reconstruction_job(
 
         recon_text = result.get("reconstructed_text") or result.get("text") or str(result)
 
-        # Create RECONSTRUCTION Artifact
         artifact = create_artifact(
             db=db,
             page_id=page.id,
             artifact_type="RECONSTRUCTION",
             content=recon_text,
             generation_method="ai",
-            model_name="Qwen/Reconstruction",
+            model_name="Gemini/Reconstruction",
             metadata={
-                "confidence": 95,
+                "confidence": result.get("confidence", 95),
                 "script": script,
             },
         )

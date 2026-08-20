@@ -1,10 +1,5 @@
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
-from sqlalchemy import select
-from sqlalchemy.orm import Session
-
 from app.core.auth import get_current_user
 from app.core.dependencies import get_db
 from app.models.ai_job import AIJob
@@ -13,6 +8,10 @@ from app.models.page import Page
 from app.models.user import User
 from app.schemas.ai import AIJobCreate, AIJobResponse
 from app.services.ai.job_runner import run_ai_job as execute_ai_job
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 router = APIRouter(
     prefix="/ai",

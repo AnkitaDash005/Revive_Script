@@ -1,6 +1,8 @@
 import os
 import re
+from pathlib import Path
 from typing import Any, ClassVar
+from PIL import Image
 
 from dotenv import load_dotenv
 from google import genai
@@ -14,11 +16,12 @@ load_dotenv()
 class ReconstructionService(AIService):
     """
     Reconstructs uncertain or damaged manuscript text using:
-    - OCR output
-    - VLM-corrected transcription
+    - Visual inspection of the original image
+    - OCR / VLM output
     - RAG-retrieved manuscript context
     """
 
+    # Using 2.0 Flash or Pro is recommended for multimodal reasoning
     MODEL_NAME: str = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
     _client: ClassVar[Any] = None
 
@@ -32,8 +35,25 @@ class ReconstructionService(AIService):
         return cls._client
 
     @staticmethod
+    def _resolve_image_path(raw_path: str | Path) -> Path:
+        p = Path(raw_path)
+        if p.exists():
+            return p
+
+        clean_str = str(raw_path).lstrip("/\\")
+        p_rel = Path(clean_str)
+        if p_rel.exists():
+            return p_rel
+
+        base_dir = Path(__file__).resolve().parent.parent.parent.parent
+        p_base = base_dir / clean_str
+        if p_base.exists():
+            return p_base
+
+        raise FileNotFoundError(f"Image file not found at: {raw_path}")
+
+    @staticmethod
     def _extract_reconstructed_text(raw_output: str) -> str:
-        """Extracts text between RECONSTRUCTED_TEXT: and CONFIDENCE:"""
         if not raw_output:
             return ""
 
@@ -44,7 +64,7 @@ class ReconstructionService(AIService):
         )
         if match:
             clean = match.group(1).strip()
-            if clean and clean != "<reconstructed manuscript text>":
+            if clean and clean != "<full reconstructed manuscript text>":
                 return clean
 
         return raw_output.strip()
@@ -67,10 +87,17 @@ class ReconstructionService(AIService):
         if not isinstance(input_data, dict):
             raise TypeError("Reconstruction input_data must be a dictionary")
 
+        raw_image_path = input_data.get("image_path")
         ocr_text = input_data.get("ocr_text", "")
         corrected_text = input_data.get("corrected_text", "")
         rag_context = input_data.get("rag_context", "")
         script = input_data.get("script", "Devanagari")
+
+        if not raw_image_path:
+            raise ValueError("image_path is required for multimodal reconstruction")
+
+        image_path = self._resolve_image_path(raw_image_path)
+        client = self._get_client()
 
         prompt = self._build_prompt(
             ocr_text=ocr_text,
@@ -79,18 +106,17 @@ class ReconstructionService(AIService):
             script=script,
         )
 
-        client = self._get_client()
+        with Image.open(image_path) as image:
+            response = client.models.generate_content(
+                model=self.MODEL_NAME,
+                contents=[image, prompt], # The AI can finally see!
+                config=types.GenerateContentConfig(
+                    temperature=0.2,
+                    max_output_tokens=2048,
+                ),
+            )
 
-        response = client.models.generate_content(
-            model=self.MODEL_NAME,
-            contents=[prompt],
-            config=types.GenerateContentConfig(
-                temperature=0.0,
-                max_output_tokens=1024,
-            ),
-        )
-
-        raw_output = response.text.strip() if response.text else ""
+        raw_output = response.text.strip() if response and response.text else ""
         clean_text = self._extract_reconstructed_text(raw_output)
         confidence = self._extract_confidence(raw_output)
 
@@ -115,52 +141,50 @@ class ReconstructionService(AIService):
         rag_context: str,
         script: str,
     ) -> str:
+        rag_section = f"{rag_context}" if rag_context else "No external RAG context provided. Use your internal knowledge of the Vedic corpus."
+
         return f"""
-You are an expert historical manuscript reconstruction assistant.
+You are an expert historical manuscript reconstruction assistant and Sanskrit philologist.
 
 Target script:
 {script}
 
-INITIAL OCR:
+INITIAL OCR / VLM TEXT (May be truncated or inaccurate):
 ---
-{ocr_text or "[None available]"}
----
-
-VLM CORRECTED TRANSCRIPTION:
----
-{corrected_text or "[None available]"}
+{corrected_text or ocr_text or "[None available]"}
 ---
 
-RELEVANT MANUSCRIPT CONTEXT FROM RAG:
+RELEVANT CONTEXT:
 ---
-{rag_context or "[No relevant context found]"}
+{rag_section}
 ---
 
-Your task is to reconstruct only text that can be reasonably
-supported by the available evidence.
+Your task is to visually inspect the manuscript image and RECONSTRUCT the damaged, cut-off, or stained portions.
 
 Rules:
-1. Prefer the VLM transcription when it is visually supported.
-2. Use RAG context only as supporting historical/manuscript context.
-3. Do not invent missing words or characters.
-4. Do not silently replace uncertain text.
-5. Mark genuinely uncertain portions as [UNCERTAIN].
-6. Preserve the original script.
-7. Preserve meaningful line breaks where possible.
-8. If reconstruction is impossible, keep the uncertain section.
-9. Explain important reconstruction decisions briefly.
+1. DO NOT blind-trust the provided OCR text. It is likely truncated. Look at the attached image and read it completely.
+2. Identify broken sentences, grammatical gaps, and cut-off margins.
+3. ACTIVELY INFILL missing characters under stains or tears based on visual outlines, meter, and known historical texts.
+4. Enclose all reconstructed/restored words in brackets, e.g., `सम**[र्धयति ३]**`.
+5. Maintain the original script, formatting, and line breaks.
 
 Return exactly:
 
 RECONSTRUCTED_TEXT:
-<reconstructed manuscript text>
+[Left Margin]
+<margin text>
+
+[Main Text]
+Line 1: <text>
+Line 2: <text>
+...
 
 CONFIDENCE:
 <high / medium / low>
 
 UNCERTAIN_PORTIONS:
-<list uncertain portions, or "none">
+<list any portions that were absolutely impossible to deduce, or "none">
 
 NOTES:
-<brief explanation>
+<briefly explain what specific words you reconstructed and why>
 """.strip()
