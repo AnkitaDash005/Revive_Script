@@ -1,3 +1,7 @@
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
 from app.core.auth import get_current_user
 from app.core.dependencies import get_db
 from app.models.collection import Collections
@@ -8,13 +12,28 @@ from app.schemas.manuscript import (
     ManuscriptResponse,
     ManuscriptUpdate,
 )
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 router = APIRouter(
     tags=["Manuscripts"],
 )
+
+
+@router.get(
+    "/manuscripts",
+    response_model=list[ManuscriptResponse],
+)
+def list_all_manuscripts(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Returns all manuscripts owned by the current user across collections."""
+    return db.scalars(
+        select(Manuscript)
+        .join(Collections, Manuscript.collection_id == Collections.id)
+        .where(Collections.owner_id == current_user.id)
+        .order_by(Manuscript.created_at.desc())
+    ).all()
+
 
 @router.post(
     "/collections/{collection_id}/manuscripts",
@@ -27,17 +46,12 @@ def create_manuscript(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    collection = db.scalar(
-        select(Collections).where(
-            Collections.id == collection_id,
-            Collections.owner_id == current_user.id,
-        )
-    )
+    collection = db.get(Collections, collection_id)
 
     if collection is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Collection not found",
+            detail=f"Collection ID {collection_id} does not exist.",
         )
 
     manuscript = Manuscript(
@@ -57,21 +71,17 @@ def create_manuscript(
 
     return manuscript
 
+
 @router.get(
     "/collections/{collection_id}/manuscripts",
     response_model=list[ManuscriptResponse],
 )
-def list_manuscripts(
+def list_manuscripts_by_collection(
     collection_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    collection = db.scalar(
-        select(Collections).where(
-            Collections.id == collection_id,
-            Collections.owner_id == current_user.id,
-        )
-    )
+    collection = db.get(Collections, collection_id)
 
     if collection is None:
         raise HTTPException(
@@ -79,13 +89,12 @@ def list_manuscripts(
             detail="Collection not found",
         )
 
-    manuscripts = db.scalars(
+    return db.scalars(
         select(Manuscript)
         .where(Manuscript.collection_id == collection_id)
         .order_by(Manuscript.created_at.desc())
     ).all()
 
-    return manuscripts
 
 @router.get(
     "/manuscripts/{manuscript_id}",
@@ -96,17 +105,7 @@ def get_manuscript(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    manuscript = db.scalar(
-        select(Manuscript)
-        .join(
-            Collections,
-            Manuscript.collection_id == Collections.id,
-        )
-        .where(
-            Manuscript.id == manuscript_id,
-            Collections.owner_id == current_user.id,
-        )
-    )
+    manuscript = db.get(Manuscript, manuscript_id)
 
     if manuscript is None:
         raise HTTPException(
@@ -115,6 +114,7 @@ def get_manuscript(
         )
 
     return manuscript
+
 
 @router.put(
     "/manuscripts/{manuscript_id}",
@@ -126,17 +126,7 @@ def update_manuscript(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    manuscript = db.scalar(
-        select(Manuscript)
-        .join(
-            Collections,
-            Manuscript.collection_id == Collections.id,
-        )
-        .where(
-            Manuscript.id == manuscript_id,
-            Collections.owner_id == current_user.id,
-        )
-    )
+    manuscript = db.get(Manuscript, manuscript_id)
 
     if manuscript is None:
         raise HTTPException(
@@ -154,6 +144,7 @@ def update_manuscript(
 
     return manuscript
 
+
 @router.delete(
     "/manuscripts/{manuscript_id}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -163,17 +154,7 @@ def delete_manuscript(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    manuscript = db.scalar(
-        select(Manuscript)
-        .join(
-            Collections,
-            Manuscript.collection_id == Collection.id,
-        )
-        .where(
-            Manuscript.id == manuscript_id,
-            Collections.owner_id == current_user.id,
-        )
-    )
+    manuscript = db.get(Manuscript, manuscript_id)
 
     if manuscript is None:
         raise HTTPException(

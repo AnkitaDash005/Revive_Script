@@ -18,7 +18,6 @@ def create_artifact(
     model_version: str | None = None,
     metadata: dict | None = None,
 ) -> Artifact:
-
     artifact = Artifact(
         page_id=page_id,
         artifact_type=artifact_type,
@@ -60,10 +59,10 @@ def create_artifact(
     )
 
     db.add(event)
-
     db.flush()
 
     return artifact
+
 
 def create_artifact_version(
     db: Session,
@@ -78,7 +77,6 @@ def create_artifact_version(
     change_description: str | None = None,
     metadata: dict | None = None,
 ) -> ArtifactVersion:
-
     new_version_number = artifact.version + 1
 
     version = ArtifactVersion(
@@ -94,7 +92,12 @@ def create_artifact_version(
         metadata_json=metadata,
     )
 
+    # Keep parent artifact in sync with latest version content
     artifact.version = new_version_number
+    if content is not None:
+        artifact.content = content
+    if file_path is not None:
+        artifact.file_path = file_path
 
     db.add(version)
 
@@ -102,12 +105,33 @@ def create_artifact_version(
         artifact_id=artifact.id,
         actor_id=created_by,
         event_type="ARTIFACT_VERSION_CREATED",
-        description=change_description,
+        description=change_description or f"Updated to version {new_version_number}",
         event_metadata=metadata,
     )
 
     db.add(event)
-
     db.flush()
 
     return version
+
+
+def record_provenance_event(
+    db: Session,
+    *,
+    artifact_id: int,
+    actor_id: int | None = None,
+    event_type: str,
+    description: str | None = None,
+    metadata: dict | None = None,
+) -> ProvenanceEvent:
+    """Helper to log custom scholar actions such as VERIFIED, ACCEPTED, or REJECTED."""
+    event = ProvenanceEvent(
+        artifact_id=artifact_id,
+        actor_id=actor_id,
+        event_type=event_type,
+        description=description,
+        event_metadata=metadata,
+    )
+    db.add(event)
+    db.flush()
+    return event

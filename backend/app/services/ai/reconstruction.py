@@ -1,10 +1,12 @@
 import os
+import re
 from typing import Any, ClassVar
 
-from app.services.ai.base import AIService
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+
+from app.services.ai.base import AIService
 
 load_dotenv()
 
@@ -17,23 +19,44 @@ class ReconstructionService(AIService):
     - RAG-retrieved manuscript context
     """
 
-    MODEL_NAME: str = "gemini-3.6-flash"
-
+    MODEL_NAME: str = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
     _client: ClassVar[Any] = None
 
     @classmethod
     def _get_client(cls) -> genai.Client:
         if cls._client is None:
             api_key = os.getenv("GEMINI_API_KEY")
-
             if not api_key:
-                raise ValueError(
-                    "GEMINI_API_KEY environment variable is missing"
-                )
-
+                raise ValueError("GEMINI_API_KEY environment variable is missing in .env")
             cls._client = genai.Client(api_key=api_key)
-
         return cls._client
+
+    @staticmethod
+    def _extract_reconstructed_text(raw_output: str) -> str:
+        """Extracts text between RECONSTRUCTED_TEXT: and CONFIDENCE:"""
+        if not raw_output:
+            return ""
+
+        match = re.search(
+            r"RECONSTRUCTED_TEXT:\s*(.*?)(?=\n\s*(?:CONFIDENCE|UNCERTAIN_PORTIONS|NOTES):|$)",
+            raw_output,
+            re.DOTALL | re.IGNORECASE,
+        )
+        if match:
+            clean = match.group(1).strip()
+            if clean and clean != "<reconstructed manuscript text>":
+                return clean
+
+        return raw_output.strip()
+
+    @staticmethod
+    def _extract_confidence(raw_output: str) -> str:
+        match = re.search(
+            r"CONFIDENCE:\s*(.*?)(?=\n\s*(?:UNCERTAIN_PORTIONS|NOTES):|$)",
+            raw_output,
+            re.DOTALL | re.IGNORECASE,
+        )
+        return match.group(1).strip() if match else "medium"
 
     def process(
         self,
@@ -41,16 +64,13 @@ class ReconstructionService(AIService):
         page_id: int,
         input_data: Any,
     ) -> dict:
-
         if not isinstance(input_data, dict):
-            raise TypeError(
-                "Reconstruction input_data must be a dictionary"
-            )
+            raise TypeError("Reconstruction input_data must be a dictionary")
 
         ocr_text = input_data.get("ocr_text", "")
         corrected_text = input_data.get("corrected_text", "")
         rag_context = input_data.get("rag_context", "")
-        script = input_data.get("script", "unknown")
+        script = input_data.get("script", "Devanagari")
 
         prompt = self._build_prompt(
             ocr_text=ocr_text,
@@ -67,11 +87,12 @@ class ReconstructionService(AIService):
             config=types.GenerateContentConfig(
                 temperature=0.0,
                 max_output_tokens=1024,
-                tools=[],
             ),
         )
 
-        output = response.text.strip() if response.text else ""
+        raw_output = response.text.strip() if response.text else ""
+        clean_text = self._extract_reconstructed_text(raw_output)
+        confidence = self._extract_confidence(raw_output)
 
         return {
             "page_id": page_id,
@@ -80,7 +101,10 @@ class ReconstructionService(AIService):
             "ocr_text": ocr_text,
             "corrected_text": corrected_text,
             "rag_context": rag_context,
-            "reconstruction": output,
+            "reconstructed_text": clean_text or raw_output,
+            "reconstruction": clean_text or raw_output,
+            "raw_output": raw_output,
+            "confidence": confidence,
         }
 
     def _build_prompt(
@@ -91,7 +115,6 @@ class ReconstructionService(AIService):
         rag_context: str,
         script: str,
     ) -> str:
-
         return f"""
 You are an expert historical manuscript reconstruction assistant.
 
@@ -99,7 +122,7 @@ Target script:
 {script}
 
 INITIAL OCR:
---- 
+---
 {ocr_text or "[None available]"}
 ---
 
@@ -117,7 +140,6 @@ Your task is to reconstruct only text that can be reasonably
 supported by the available evidence.
 
 Rules:
-
 1. Prefer the VLM transcription when it is visually supported.
 2. Use RAG context only as supporting historical/manuscript context.
 3. Do not invent missing words or characters.

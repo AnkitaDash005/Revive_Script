@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/png" href="LOGO.png" />
-<title>Revive Script</title>
+<title>Revive Script — Sign In</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -18,6 +18,7 @@
     --forest: #1f2e22;
     --forest-deep: #17231a;
     --muted: #6b7268;
+    --error: #b3261e;
   }
 
   *{box-sizing:border-box; margin:0; padding:0;}
@@ -37,21 +38,21 @@
     align-items:center;
     justify-content:center;
     padding: 20px 24px;
- }
+  }
 
   .bg-photo{
     position:fixed;
     inset:0;
     background-image:
       linear-gradient(115deg, rgba(10,14,10,0.72) 0%, rgba(15,20,14,0.5) 40%, rgba(10,14,10,0.75) 100%),
-      url('Background.png');
+      url('/static/Background.png');
     background-size: cover;
     background-position: center 40%;
     filter: saturate(0.85) contrast(1.05);
     transform: scale(1.08);
     transition: transform 1.4s cubic-bezier(.2,.7,.2,1);
     z-index:0;
-}
+  }
 
   .bg-vignette{
     position:fixed;
@@ -120,7 +121,7 @@
     text-align: center;
     color: #f4efe3;
     min-height: auto;
- }
+  }
 
   .hero-emblem{
     width:84px; height:84px;
@@ -139,20 +140,11 @@
     0%,100%{ box-shadow: 0 0 0px rgba(201,169,106,0); }
     50%{ box-shadow: 0 0 22px rgba(201,169,106,0.28); }
   }
-  /* .hero-emblem svg{ width:45px; height:45px; } */
   .spark-sm{
     top: 18px; right: 2px;
     width: 6px; height: 6px;
     opacity: 0.7;
     animation-delay: 0.8s;
-}
-  .emblem-glyph{
-    font-family:'Cormorant Garamond', serif;
-    font-weight:600;
-    font-size:36px;
-    line-height:1;
-    color:#e9dcb8;
-    transform: translateY(-1px);
   }
   .spark{
     position:absolute;
@@ -174,7 +166,7 @@
     letter-spacing: -0.01em;
     margin-bottom: 8px;
     white-space: nowrap;
- }
+  }
   .hero h1 span{
     display:inline-block;
     opacity:0;
@@ -314,27 +306,27 @@
   }
   .lang-select:hover{ box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
   .lang-select svg{ width:14px; height:14px; opacity:0.6; }
-.lang-dropdown{
-  display:none;
-  position:absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  background:#fff;
-  border:1px solid rgba(0,0,0,0.08);
-  border-radius:10px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-  overflow:hidden;
-  min-width: 120px;
-  z-index: 10;
-}
-.lang-dropdown.open{ display:block; }
-.lang-option{
-  padding: 10px 14px;
-  font-size:13px;
-  cursor:pointer;
-  transition: background .15s ease;
-}
-.lang-option:hover{ background:#f3ede0; }
+  .lang-dropdown{
+    display:none;
+    position:absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    background:#fff;
+    border:1px solid rgba(0,0,0,0.08);
+    border-radius:10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    overflow:hidden;
+    min-width: 120px;
+    z-index: 10;
+  }
+  .lang-dropdown.open{ display:block; }
+  .lang-option{
+    padding: 10px 14px;
+    font-size:13px;
+    cursor:pointer;
+    transition: background .15s ease;
+  }
+  .lang-option:hover{ background:#f3ede0; }
 
   .card-top{
     display:flex;
@@ -342,7 +334,7 @@
     align-items:center;
     text-align:center;
     padding-top: 8px;
-    margin-bottom: 30px;
+    margin-bottom: 24px;
   }
 
   .brand-ring{
@@ -356,24 +348,11 @@
   .brand-ring--logo{ border: none; }
   .brand-ring--logo::after{ display:none; }
   .brand-logo-img{
-  width: 100%; height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    image-rendering: -webkit-optimize-contrast;
   }
-  .brand-ring::after{
-    content:"";
-    position:absolute; inset:-6px;
-    border-radius:50%;
-    border: 1px solid rgba(179,144,63,0.25);
-    animation: ring-breathe 3.5s ease-in-out infinite;
-  }
-  @keyframes ring-breathe{
-    0%,100%{ transform: scale(1); opacity:0.6; }
-    50%{ transform: scale(1.08); opacity:0.15; }
-  }
-  .brand-ring svg{ width:28px; height:28px; color: var(--forest); }
 
   .card-top h2{
     font-family:'Playfair Display', serif;
@@ -387,11 +366,31 @@
     color: var(--muted);
   }
 
-  form{ display:flex; flex-direction:column; gap:18px; }
+  /* Form & Status feedback */
+  form{ display:flex; flex-direction:column; gap:16px; }
 
-  .field{
-    position:relative;
+  .auth-message{
+    font-size: 13px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    display: none;
+    text-align: center;
+    line-height: 1.4;
   }
+  .auth-message.error{
+    display: block;
+    background: #fde8e8;
+    color: var(--error);
+    border: 1px solid rgba(179,38,30,0.2);
+  }
+  .auth-message.loading{
+    display: block;
+    background: #eef2eb;
+    color: var(--forest);
+    border: 1px solid rgba(31,46,34,0.15);
+  }
+
+  .field{ position:relative; }
   .field input{
     width:100%;
     background: #efe8d8;
@@ -427,7 +426,7 @@
   .row-between{
     display:flex;
     justify-content:flex-end;
-    margin-top:-6px;
+    margin-top:-4px;
   }
   .forgot{
     font-size: 13px;
@@ -438,7 +437,7 @@
   .forgot:hover{ color: var(--gold); text-decoration:underline; }
 
   .btn-primary{
-    margin-top: 6px;
+    margin-top: 4px;
     background: linear-gradient(180deg, #21301f, #17231a);
     color: #f4efe3;
     border:none;
@@ -451,13 +450,18 @@
     cursor:pointer;
     position:relative;
     overflow:hidden;
-    transition: transform .2s ease, box-shadow .2s ease;
+    transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
   }
   .btn-primary:hover{
     transform: translateY(-1px);
     box-shadow: 0 10px 24px rgba(23,35,26,0.35);
   }
   .btn-primary:active{ transform: translateY(0); }
+  .btn-primary:disabled{
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none !important;
+  }
   .btn-primary::after{
     content:"";
     position:absolute; top:0; left:-60%;
@@ -470,7 +474,7 @@
 
   .divider{
     display:flex; align-items:center; gap:14px;
-    margin: 22px 0 18px 0;
+    margin: 18px 0 14px 0;
     color:#a39c8a; font-size:13px;
   }
   .divider::before, .divider::after{
@@ -487,14 +491,15 @@
     font-weight:500;
     color: var(--ink);
     cursor:pointer;
+    text-decoration:none;
     transition: box-shadow .2s ease, transform .2s ease;
   }
   .btn-google:hover{ box-shadow: 0 6px 16px rgba(0,0,0,0.08); transform: translateY(-1px); }
   .btn-google svg{ width:18px; height:18px; }
 
   .card-footer{
-    margin-top: 28px;
-    padding: 18px 0;
+    margin-top: 24px;
+    padding: 16px 0;
     border-top: 1px solid rgba(0,0,0,0.08);
     display:flex;
     align-items:center;
@@ -508,40 +513,26 @@
   .card-footer svg{ width:16px; height:16px; color: var(--gold); }
 
   .register-row{
-  text-align:center;
-  font-size:13.5px;
-  color: var(--muted);
-  margin-top: 22px;
-}
-.register-link{
-  color: var(--gold);
-  font-weight:600;
-  margin-left:5px;
-  position:relative;
-  transition: color .2s ease;
-}
-.register-link::after{
-  content:"";
-  position:absolute; left:0; bottom:-2px;
-  width:100%; height:1px;
-  background: var(--gold);
-  transform: scaleX(0);
-  transform-origin: right;
-  transition: transform .25s ease;
-}
-.register-link:hover{ color: var(--gold-soft); }
-.register-link:hover::after{ transform: scaleX(1); transform-origin: left; }
+    text-align:center;
+    font-size:13.5px;
+    color: var(--muted);
+    margin-top: 18px;
+  }
+  .register-link{
+    color: var(--gold);
+    font-weight:600;
+    margin-left:5px;
+    position:relative;
+    transition: color .2s ease;
+    text-decoration:none;
+  }
+  .register-link:hover{ color: var(--gold-soft); }
 
-  /* ---------- RESPONSIVE ---------- */
   @media (max-width: 980px){
     .frame{ grid-template-columns: 1fr; max-width: 460px; }
     .hero{ display:none; }
     .card{ border-radius: 20px; padding: 36px 28px 0 28px; }
     .card-footer{ margin-left:-28px; margin-right:-28px; padding-left:28px; padding-right:28px; }
-  }
-
-  @media (prefers-reduced-motion: reduce){
-    *{ animation: none !important; transition: none !important; }
   }
 </style>
 </head>
@@ -606,7 +597,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>
           </svg>
-          <span data-i18n="supporting_scripts"></span>Supporting Indian Scripts &amp; Collections</span>
+          <span data-i18n="supporting_scripts">Supporting Indian Scripts &amp; Collections</span>
         </div>
       </div>
 
@@ -627,26 +618,28 @@
 
           <div class="card-top">
             <div class="brand-ring brand-ring--logo">
-                <img src="LOGO.png" alt="Logo" class="brand-logo-img">
+                <img src="/static/LOGO.png" alt="Logo" class="brand-logo-img">
             </div>
             <h2 data-i18n="welcome_title">Welcome To Revive Script</h2>
             <p data-i18n="welcome_sub">Sign in to continue your research journey</p>
           </div>
 
-          <form onsubmit="return false;">
+          <div id="authMessage" class="auth-message"></div>
+
+          <form id="loginForm">
             <div class="field">
               <span class="icon-left">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
               </span>
-              <input type="text" placeholder="Email or Username" autocomplete="username" data-i18n-placeholder="email_placeholder">
+              <input type="text" id="username" name="username" placeholder="Email or Username" autocomplete="username" required>
             </div>
 
             <div class="field">
               <span class="icon-left">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
               </span>
-              <input type="password" id="pwd" placeholder="Password" autocomplete="current-password" data-i18n-placeholder="password_placeholder">
-              <span class="icon-right" id="toggleEye">
+              <input type="password" id="pwd" name="password" placeholder="Password" autocomplete="current-password" required>
+              <span class="icon-right" id="toggleEye" aria-label="Toggle password visibility">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" opacity="0.35"/><path d="M3 3l18 18"/></svg>
               </span>
             </div>
@@ -655,19 +648,19 @@
               <a href="#" class="forgot" data-i18n="forgot">Forgot Password?</a>
             </div>
 
-            <button class="btn-primary" type="submit" onclick="window.location.href='dashboard.html'" data-i18n="signin_btn">Sign In</button>
+            <button class="btn-primary" type="submit" id="submitBtn" data-i18n="signin_btn">Sign In</button>
           </form>
 
           <div class="divider">or</div>
 
-          <button class="btn-google" type="button" data-i18n="google_btn">
+          <a href="/auth/google/login" class="btn-google" id="googleBtn">
             <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.3 35 24 35c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.2-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.6 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 7.1 29.6 5 24 5c-7.4 0-13.8 4.2-17.7 10.7z"/><path fill="#4CAF50" d="M24 45c5.4 0 10.4-2.1 14.1-5.4l-6.5-5.5C29.6 35.7 26.9 37 24 37c-5.3 0-9.7-3.6-11.3-8.5l-6.6 5.1C9.9 40.4 16.4 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.3 5.6h.1l6.5 5.5C36.6 40.5 44 36 44 24c0-1.2-.1-2.4-.4-3.5z"/></svg>
-            <span data-i18n="google_btn">Continue with Google</span>
-          </button>
+            <span>Continue with Google</span>
+          </a>
 
           <div class="register-row">
             <span data-i18n="register_text">Don't have an account?</span>
-            <a href="#" class="register-link" data-i18n="register_link">Register</a>
+            <a href="#" class="register-link" id="registerLink" data-i18n="register_link">Register</a>
           </div>
 
           <div class="card-footer">
@@ -681,27 +674,28 @@
   </div>
 
 <script>
-    const translations = {
-  English: { tagline:"AI-assisted restoration for our literary heritage.", welcome_title:"Welcome to Revive Script", welcome_sub:"Sign in to continue your research journey", email_placeholder:"Email or Username", password_placeholder:"Password", forgot:"Forgot Password?", signin_btn:"Sign In", google_btn:"Continue with Google", footer_text:"Preserving heritage. Empowering scholars." },
-  हिन्दी: { tagline:"हमारी साहित्यिक विरासत के लिए एआई-सहायित पुनर्स्थापन।", welcome_title:"Revive Script में आपका स्वागत है", welcome_sub:"अपनी शोध यात्रा जारी रखने के लिए साइन इन करें", email_placeholder:"ईमेल या उपयोगकर्ता नाम", password_placeholder:"पासवर्ड", forgot:"पासवर्ड भूल गए?", signin_btn:"साइन इन करें", google_btn:"Google से जारी रखें", footer_text:"विरासत का संरक्षण। शोधकर्ताओं को सशक्त बनाना।" },
-  தமிழ்: { tagline:"நமது இலக்கிய பாரம்பரியத்திற்கான AI-உதவி புனரமைப்பு.", welcome_title:"Revive Script-க்கு வரவேற்கிறோம்", welcome_sub:"உங்கள் ஆராய்ச்சி பயணத்தைத் தொடர உள்நுழையவும்", email_placeholder:"மின்னஞ்சல் அல்லது பயனர்பெயர்", password_placeholder:"கடவுச்சொல்", forgot:"கடவுச்சொல் மறந்துவிட்டதா?", signin_btn:"உள்நுழைக", google_btn:"Google மூலம் தொடரவும்", footer_text:"பாரம்பரியத்தைப் பாதுகாத்தல். அறிஞர்களை மேம்படுத்துதல்." },
-  मराठी: { tagline:"आमच्या साहित्यिक वारशासाठी एआय-सहाय्यित जीर्णोद्धार.", welcome_title:"Revive Script मध्ये आपले स्वागत आहे", welcome_sub:"तुमचा संशोधन प्रवास सुरू ठेवण्यासाठी साइन इन करा", email_placeholder:"ईमेल किंवा वापरकर्तानाव", password_placeholder:"पासवर्ड", forgot:"पासवर्ड विसरलात?", signin_btn:"साइन इन करा", google_btn:"Google सह सुरू ठेवा", footer_text:"वारसा जतन करणे. संशोधकांना सक्षम करणे." },
-  ଓଡ଼ିଆ: { tagline:"ଆମର ସାହିତ୍ୟିକ ଐତିହ୍ୟ ପାଇଁ AI-ସହାୟିତ ପୁନରୁଦ୍ଧାର।", welcome_title:"Revive Script କୁ ସ୍ୱାଗତ", welcome_sub:"ଆପଣଙ୍କର ଗବେଷଣା ଯାତ୍ରା ଜାରି ରଖିବାକୁ ସାଇନ ଇନ କରନ୍ତୁ", email_placeholder:"ଇମେଲ କିମ୍ବା ୟୁଜରନେମ", password_placeholder:"ପାସୱାର୍ଡ", forgot:"ପାସୱାର୍ଡ ଭୁଲିଗଲେ?", signin_btn:"ସାଇନ ଇନ", google_btn:"Google ସହିତ ଜାରି ରଖନ୍ତୁ", footer_text:"ଐତିହ୍ୟ ସଂରକ୍ଷଣ। ପଣ୍ଡିତମାନଙ୍କୁ ସଶକ୍ତ କରିବା।" }
-};
+  const translations = {
+    English: { tagline:"AI-assisted restoration for our literary heritage.", welcome_title:"Welcome To Revive Script", welcome_sub:"Sign in to continue your research journey", email_placeholder:"Email or Username", password_placeholder:"Password", forgot:"Forgot Password?", signin_btn:"Sign In", register_text:"Don't have an account?", register_link:"Register", footer_text:"Preserving heritage. Empowering scholars.", supporting_scripts:"Supporting Indian Scripts & Collections", enhance_title:"Enhance", enhance_desc:"Faded texts & images", reconstruct_title:"Reconstruct", reconstruct_desc:"Smart suggestions", verify_title:"Verify", verify_desc:"Scholar-in-the-loop" },
+    हिन्दी: { tagline:"हमारी साहित्यिक विरासत के लिए एआई-सहायित पुनर्स्थापन।", welcome_title:"Revive Script में आपका स्वागत है", welcome_sub:"अपनी शोध यात्रा जारी रखने के लिए साइन इन करें", email_placeholder:"ईमेल या उपयोगकर्ता नाम", password_placeholder:"पासवर्ड", forgot:"पासवर्ड भूल गए?", signin_btn:"साइन इन करें", register_text:"खाता नहीं है?", register_link:"रजिस्टर करें", footer_text:"विरासत का संरक्षण। शोधकर्ताओं को सशक्त बनाना।", supporting_scripts:"भारतीय लिपियों और संग्रहों का समर्थन", enhance_title:"सुधारें", enhance_desc:"धुंधले पाठ और चित्र", reconstruct_title:"पुनर्निर्माण", reconstruct_desc:"स्मार्ट सुझाव", verify_title:"सत्यापित करें", verify_desc:"विद्वान-इन-द-लूप" },
+    தமிழ்: { tagline:"நமது இலக்கிய பாரம்பரியத்திற்கான AI-உதவி புனரமைப்பு.", welcome_title:"Revive Script-க்கு வரவேற்கிறோம்", welcome_sub:"உங்கள் ஆராய்ச்சி பயணத்தைத் தொடர உள்நுழையவும்", email_placeholder:"மின்னஞ்சல் அல்லது பயனர்பெயர்", password_placeholder:"கடவுச்சொல்", forgot:"கடவுச்சொல் மறந்துவிட்டதா?", signin_btn:"உள்நுழைக", register_text:"கணக்கு இல்லையா?", register_link:"பதிவு செய்க", footer_text:"பாரம்பரியத்தைப் பாதுகாத்தல். அறிஞர்களை மேம்படுத்துதல்.", supporting_scripts:"இந்திய எழுத்துக்கள் & தொகுப்புகளுக்கான ஆதரவு", enhance_title:"மேம்படுத்து", enhance_desc:"மங்கிய உரைகள் & படங்கள்", reconstruct_title:"மீட்டமை", reconstruct_desc:"நுண்ணறிவு பரிந்துரைகள்", verify_title:"சரிபார்", verify_desc:"அறிஞர் மேற்பார்வை" },
+    मराठी: { tagline:"आमच्या साहित्यिक वारशासाठी एआय-सहाय्यित जीर्णोद्धार.", welcome_title:"Revive Script मध्ये आपले स्वागत आहे", welcome_sub:"तुमचा संशोधन प्रवास सुरू ठेवण्यासाठी साइन इन करा", email_placeholder:"ईमेल किंवा वापरकर्तानाव", password_placeholder:"पासवर्ड", forgot:"पासवर्ड विसरलात?", signin_btn:"साइन इन करा", register_text:"खाते नाही?", register_link:"नोंदणी करा", footer_text:"वारसा जतन करणे. संशोधकांना सक्षम करणे.", supporting_scripts:"भारतीय लिपी आणि संग्रहांना समर्थन", enhance_title:"सुधारा", enhance_desc:"अस्पष्ट मजकूर आणि चित्रे", reconstruct_title:"पुनर्रचना", reconstruct_desc:"स्मार्ट सूचना", verify_title:"सत्यापित करा", verify_desc:"अभ्यासक-इन-द-लूप" },
+    ଓଡ଼ିଆ: { tagline:"ଆମର ସାହିତ୍ୟିକ ଐତିହ୍ୟ ପାଇଁ AI-ସହାୟିତ ପୁନରୁଦ୍ଧାର।", welcome_title:"Revive Script କୁ ସ୍ୱାଗତ", welcome_sub:"ଆପଣଙ୍କର ଗବେଷଣା ଯାତ୍ରା ଜାରି ରଖିବାକୁ ସାଇନ ଇନ କରନ୍ତୁ", email_placeholder:"ଇମେଲ କିମ୍ବା ୟୁଜରନେମ", password_placeholder:"ପାସୱାର୍ଡ", forgot:"ପାସୱାର୍ଡ ଭୁଲିଗଲେ?", signin_btn:"ସାଇନ ଇନ", register_text:"ଆକାଉଣ୍ଟ ନାହିଁ?", register_link:"ରେଜିଷ୍ଟର କରନ୍ତୁ", footer_text:"ଐତିହ୍ୟ ସଂରକ୍ଷଣ। ପଣ୍ଡିତମାନଙ୍କୁ ସଶକ୍ତ କରିବା।", supporting_scripts:"ଭାରତୀୟ ଲିପି ଏବଂ ସଂଗ୍ରହ ସମର୍ଥନ", enhance_title:"ଉନ୍ନତ କରନ୍ତୁ", enhance_desc:"ମଳିନ ପାଠ୍ୟ ଏବଂ ଚିତ୍ର", reconstruct_title:"ପୁନର୍ନିର୍ମାଣ", reconstruct_desc:"ସ୍ମାର୍ଟ ପରାମର୍ଶ", verify_title:"ଯାଞ୍ଚ କରନ୍ତୁ", verify_desc:"ବିଦ୍ୱାନ-ଇନ୍-ଦ-ଲୁପ୍" }
+  };
 
-function applyLanguage(lang) {
-  const dict = translations[lang];
-  if (!dict) return;
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if (dict[key]) el.textContent = dict[key];
-  });
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-    const key = el.getAttribute('data-i18n-placeholder');
-    if (dict[key]) el.placeholder = dict[key];
-  });
-}
-  // subtle parallax on the background photo based on cursor
+  function applyLanguage(lang) {
+    const dict = translations[lang];
+    if (!dict) return;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (dict[key]) el.textContent = dict[key];
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const key = el.getAttribute('data-i18n-placeholder');
+      if (dict[key]) el.placeholder = dict[key];
+    });
+  }
+
+  // Parallax background
   const bg = document.getElementById('bgPhoto');
   window.addEventListener('mousemove', (e) => {
     const x = (e.clientX / window.innerWidth - 0.5) * 12;
@@ -709,7 +703,7 @@ function applyLanguage(lang) {
     bg.style.transform = `scale(1.08) translate(${x}px, ${y}px)`;
   });
 
-  // password visibility toggle
+  // Password toggle
   const pwd = document.getElementById('pwd');
   const eye = document.getElementById('toggleEye');
   let visible = false;
@@ -721,47 +715,127 @@ function applyLanguage(lang) {
       : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" opacity="0.35"/><path d="M3 3l18 18"/></svg>';
   });
 
-  // generate drifting particles (ink dust / parchment fiber)
+  // Particles
   const field = document.getElementById('particles');
   const COUNT = 26;
   for (let i = 0; i < COUNT; i++) {
     const p = document.createElement('div');
     p.className = 'particle';
-    const size = (Math.random() * 2.4 + 1.4).toFixed(1);
-    const dur = (Math.random() * 14 + 14).toFixed(1);
-    const delay = (Math.random() * 18).toFixed(1);
-    const top = (Math.random() * 100).toFixed(1);
-    const left = (Math.random() * 100).toFixed(1);
-    const dx = (Math.random() * 60 - 30).toFixed(0);
-    const dx2 = (Math.random() * 80 - 40).toFixed(0);
-    const o = (Math.random() * 0.35 + 0.2).toFixed(2);
-    p.style.setProperty('--s', size + 'px');
-    p.style.setProperty('--dur', dur + 's');
-    p.style.setProperty('--delay', delay + 's');
-    p.style.setProperty('--top', top + '%');
-    p.style.setProperty('--left', left + '%');
-    p.style.setProperty('--dx', dx + 'px');
-    p.style.setProperty('--dx2', dx2 + 'px');
-    p.style.setProperty('--o', o);
+    p.style.setProperty('--s', (Math.random() * 2.4 + 1.4).toFixed(1) + 'px');
+    p.style.setProperty('--dur', (Math.random() * 14 + 14).toFixed(1) + 's');
+    p.style.setProperty('--delay', (Math.random() * 18).toFixed(1) + 's');
+    p.style.setProperty('--top', (Math.random() * 100).toFixed(1) + '%');
+    p.style.setProperty('--left', (Math.random() * 100).toFixed(1) + '%');
+    p.style.setProperty('--dx', (Math.random() * 60 - 30).toFixed(0) + 'px');
+    p.style.setProperty('--dx2', (Math.random() * 80 - 40).toFixed(0) + 'px');
+    p.style.setProperty('--o', (Math.random() * 0.35 + 0.2).toFixed(2));
     field.appendChild(p);
   }
-  const langSelect = document.getElementById('langSelect');
-const langDropdown = document.getElementById('langDropdown');
-langSelect.addEventListener('click', (e) => {
-  langDropdown.classList.toggle('open');
-});
-document.querySelectorAll('.lang-option').forEach(opt => {
-  opt.addEventListener('click', (e) => {
-    e.stopPropagation();
-    langSelect.firstChild.textContent = opt.dataset.lang + ' ';
-    langDropdown.classList.remove('open');
-    applyLanguage(opt.dataset.lang);
-  });
-});
-document.addEventListener('click', (e) => {
-  if (!langSelect.contains(e.target)) langDropdown.classList.remove('open');
-});
-</script>
 
+  // Language selector
+  const langSelect = document.getElementById('langSelect');
+  const langDropdown = document.getElementById('langDropdown');
+  langSelect.addEventListener('click', () => langDropdown.classList.toggle('open'));
+  document.querySelectorAll('.lang-option').forEach(opt => {
+    opt.addEventListener('click', (e) => {
+      e.stopPropagation();
+      langSelect.firstChild.textContent = opt.dataset.lang + ' ';
+      langDropdown.classList.remove('open');
+      applyLanguage(opt.dataset.lang);
+    });
+  });
+  document.addEventListener('click', (e) => {
+    if (!langSelect.contains(e.target)) langDropdown.classList.remove('open');
+  });
+
+  function parseApiError(data) {
+    if (!data) return 'Invalid credentials or request error.';
+    if (typeof data.detail === 'string') return data.detail;
+    if (Array.isArray(data.detail)) {
+      return data.detail.map(item => item.msg || item.message || JSON.stringify(item)).join(', ');
+    }
+    if (typeof data.detail === 'object' && data.detail !== null) {
+      return data.detail.msg || data.detail.message || JSON.stringify(data.detail);
+    }
+    if (data.message) return data.message;
+    return 'Authentication error occurred.';
+  }
+
+  // Quick Register helper
+  document.getElementById('registerLink').addEventListener('click', async (e) => {
+    e.preventDefault();
+    const inputVal = document.getElementById('username').value.trim();
+    const password = pwd.value;
+
+    if (!inputVal || !password) {
+      alert('Please enter an Email/Username and Password above first.');
+      return;
+    }
+
+    const email = inputVal.includes('@') ? inputVal : `${inputVal}@example.com`;
+    const name = inputVal.includes('@') ? inputVal.split('@')[0] : inputVal;
+
+    try {
+      const res = await fetch('/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, email: email, password: password })
+      });
+      
+      if (res.ok) {
+        alert(`Account created for ${name}! You can now sign in.`);
+      } else {
+        const err = await res.json();
+        alert(parseApiError(err));
+      }
+    } catch(err) {
+      alert('Network error while registering. Please verify the backend is running.');
+    }
+  });
+
+  // Authentication API Integration
+  const loginForm = document.getElementById('loginForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const authMessage = document.getElementById('authMessage');
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const identifier = document.getElementById('username').value.trim();
+    const password = pwd.value;
+
+    authMessage.className = 'auth-message loading';
+    authMessage.textContent = 'Authenticating...';
+    submitBtn.disabled = true;
+
+    try {
+      const response = await fetch('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ 
+          identifier: identifier, 
+          password: password 
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        if (data.access_token) {
+          localStorage.setItem('access_token', data.access_token);
+        }
+        window.location.href = '/dashboard';
+      } else {
+        authMessage.className = 'auth-message error';
+        authMessage.textContent = parseApiError(data);
+        submitBtn.disabled = false;
+      }
+    } catch (err) {
+      authMessage.className = 'auth-message error';
+      authMessage.textContent = 'Unable to connect to the backend server.';
+      submitBtn.disabled = false;
+    }
+  });
+</script>
 </body>
 </html>

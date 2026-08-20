@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" href="LOGO.png" />
-<title>Revive Script — Collections</title>
+<link rel="icon" type="image/png" href="/static/LOGO.png" />
+<title>Revive Script — Settings</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -18,6 +18,7 @@
     --forest: #1f2e22;
     --forest-deep: #17231a;
     --muted: #6b7268;
+    --danger: #b5433a;
   }
 
   *{box-sizing:border-box; margin:0; padding:0;}
@@ -45,7 +46,7 @@
     position:relative;
     background:
       linear-gradient(180deg, rgba(16,22,15,0.94) 0%, rgba(16,22,15,0.97) 60%, rgba(10,14,10,0.98) 100%),
-      url('Background.png');
+      url('/static/Background.png');
     background-size: cover;
     background-position: center 30%;
     color: #f4efe3;
@@ -149,7 +150,7 @@
   .search input::placeholder{ color:#8b8577; }
   .search input:focus{ background:#fff; border-color:var(--gold); box-shadow:0 0 0 3px rgba(179,144,63,0.12); }
   .search svg{ position:absolute; left:14px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:#7a7563; pointer-events:none; }
-
+  
   .topbar-right{ display:flex; align-items:center; gap:18px; flex:none; }
   .icon-btn{
     width:38px; height:38px; border-radius:50%;
@@ -185,111 +186,21 @@
   }
   .page-head-left .eyebrow{
     font-family:'Cormorant Garamond', serif; font-style:italic;
-    font-size:16px; color: var(--gold); margin-bottom:6px;
+    font-size:18px; color: var(--gold); margin-bottom:6px;
   }
   .page-head-left h1{
     font-family:'Playfair Display', serif; font-weight:700;
     font-size: clamp(26px, 3vw, 34px); color: var(--ink); letter-spacing:-0.01em;
   }
 
-  .btn-create{
-    display:flex; align-items:center; gap:9px;
-    background: linear-gradient(180deg, #21301f, #17231a);
-    color: #f4efe3;
-    border:none;
-    border-radius: 12px;
-    padding: 13px 22px;
-    font-size: 14.5px;
-    font-weight:600;
-    letter-spacing:0.01em;
-    cursor:pointer;
-    position:relative;
-    overflow:hidden;
-    flex:none;
-    transition: transform .2s ease, box-shadow .2s ease;
+  .detail-desc{
+    font-size:13.5px;
+    color: var(--muted);
+    margin-top:8px;
+    max-width:520px;
   }
-  .btn-create svg{ width:16px; height:16px; color: var(--gold-soft); }
-  .btn-create:hover{ transform: translateY(-1px); box-shadow: 0 10px 24px rgba(23,35,26,0.35); }
-  .btn-create::after{
-    content:""; position:absolute; top:0; left:-60%; width:40%; height:100%;
-    background: linear-gradient(115deg, transparent, rgba(255,255,255,0.15), transparent);
-    transform: skewX(-20deg); transition: left .6s ease;
-  }
-  .btn-create:hover::after{ left: 130%; }
 
-  .modal-overlay{
-  position:fixed; inset:0; z-index:50;
-  background: rgba(16,22,15,0.55);
-  backdrop-filter: blur(4px);
-  display:none; align-items:center; justify-content:center;
-  padding:20px;
-}
-.modal-overlay.open{ display:flex; }
-
-.modal-card{
-  width:100%; max-width:460px;
-  background: var(--parchment);
-  border-radius:18px;
-  border:1px solid rgba(0,0,0,0.06);
-  box-shadow: 0 30px 70px rgba(0,0,0,0.35);
-  padding: 30px 32px 28px 32px;
-  position:relative;
-}
-
-.modal-head{ display:flex; align-items:flex-start; gap:14px; margin-bottom:22px; }
-.modal-ring{
-  width:44px; height:44px; flex:none;
-  border-radius:50%; border:1.5px solid var(--gold);
-  display:flex; align-items:center; justify-content:center;
-}
-.modal-ring svg{ width:20px; height:20px; color:var(--forest); }
-.modal-head h2{ font-family:'Playfair Display', serif; font-size:20px; color:var(--ink); }
-.modal-head p{ font-size:12.5px; color:var(--muted); margin-top:3px; }
-.modal-close{
-  margin-left:auto; background:none; border:none; cursor:pointer;
-  color:var(--muted); width:28px; height:28px;
-}
-.modal-close svg{ width:16px; height:16px; }
-
-.modal-field{ margin-bottom:16px; }
-.modal-field label{
-  display:block; font-size:12.5px; font-weight:600;
-  color:var(--ink); margin-bottom:6px;
-}
-.modal-field input, .modal-field textarea, .modal-field select{
-  width:100%; background:#efe8d8; border:1px solid rgba(0,0,0,0.06);
-  border-radius:10px; padding:12px 14px; font-family:'Inter',sans-serif;
-  font-size:14px; color:var(--ink); outline:none; resize:vertical;
-  transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
-}
-.modal-field input:focus, .modal-field textarea:focus{
-  background:#fff; border-color:var(--gold); box-shadow:0 0 0 3px rgba(179,144,63,0.12);
-}
-
-.modal-actions{ display:flex; justify-content:flex-end; gap:12px; margin-top:22px; }
-.btn-cancel{
-  background:none; border:1.5px solid rgba(0,0,0,0.12); color:var(--ink);
-  border-radius:11px; padding:11px 18px; font-size:14px; font-weight:600; cursor:pointer;
-}
-.btn-create-submit{
-  background: linear-gradient(180deg, #21301f, #17231a); color:#f4efe3;
-  border:none; border-radius:11px; padding:11px 20px; font-size:14px;
-  font-weight:600; cursor:pointer;
-}
-
-  .toolbar{
-    display:flex; align-items:center; justify-content:space-between;
-    margin: 26px 0 22px 0;
-    padding-bottom: 14px;
-    border-bottom: 1px solid rgba(0,0,0,0.08);
-  }
-  .toolbar-count{ font-size:13px; color: var(--muted); }
-  .toolbar-count strong{ color: var(--ink); font-weight:600; }
-  .sort{
-    display:flex; align-items:center; gap:8px;
-    font-size:13px; color: var(--muted); cursor:pointer;
-  }
-      .profile-panel{
+  .profile-panel{
     position:relative; overflow:hidden;
     max-width:520px; margin-top:28px;
     background: rgba(247,242,231,0.97);
@@ -321,7 +232,8 @@
   .profile-header span{
     font-size:13px; color: var(--muted);
   }
-    .profile-row{
+
+  .profile-row{
     display:flex; align-items:center; gap:14px;
     padding:14px 0; border-bottom:1px solid rgba(0,0,0,0.05);
   }
@@ -329,7 +241,14 @@
   .profile-row svg{ width:17px; height:17px; color: var(--gold); flex:none; }
   .profile-row-label{ font-size:12px; color: var(--muted); margin-bottom:2px; }
   .profile-row-value{ font-size:14.5px; color: var(--ink); font-weight:500; }
-    .auth-badges{ display:flex; gap:10px; margin-top:10px; }
+
+  .modal-field{ margin-top: 18px; margin-bottom:16px; }
+  .modal-field label{
+    display:block; font-size:12.5px; font-weight:600;
+    color:var(--ink); margin-bottom:6px;
+  }
+
+  .auth-badges{ display:flex; gap:10px; margin-top:10px; }
   .auth-badge{
     display:inline-flex; align-items:center; gap:7px;
     background: rgba(179,144,63,0.1); color: var(--forest);
@@ -338,156 +257,24 @@
     font-size:12.5px; font-weight:600;
   }
   .auth-badge svg{ width:14px; height:14px; color: var(--gold); }
-    .btn-logout{
+
+  .btn-logout{
     margin-top:28px;
     display:flex; align-items:center; gap:8px;
-    background: transparent; color:#b5433a;
-    border:1.5px solid #b5433a; border-radius:12px;
+    background: transparent; color: var(--danger);
+    border:1.5px solid var(--danger); border-radius:12px;
     padding:12px 22px; font-size:13.5px; font-weight:600;
     cursor:pointer; transition: background .25s ease, color .25s ease;
   }
-  .btn-logout:hover{ background:#b5433a; color:#fff; }
-  .sort svg{ width:14px; height:14px; }
-
-  .modal-row{ display:flex; gap:14px; }
-.modal-row .modal-field{ flex:1; }
-.modal-field select{ cursor:pointer; appearance:none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7268' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position: right 12px center; background-size:14px; }
-
-  /* ---- collection grid ---- */
-  .grid{
-    display:grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-  }
-
-  .coll-card{
-    position:relative;
-    background: rgba(247,242,231,0.97);
-    border: 1px solid rgba(0,0,0,0.06);
-    border-radius: 18px;
-    padding: 26px 26px 22px 26px;
-    box-shadow: 0 12px 28px rgba(23,35,26,0.06);
-    display:flex; flex-direction:column;
-    transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
-    overflow:hidden;
-  }
-  .coll-card::before{
-    content:"";
-    position:absolute; top:0; left:0; right:0; height:3px;
-    background: linear-gradient(90deg, var(--gold-soft), var(--gold), var(--gold-soft));
-  }
-  .coll-card:hover{
-    transform: translateY(-5px);
-    box-shadow: 0 22px 40px rgba(23,35,26,0.12);
-    border-color: rgba(179,144,63,0.3);
-  }
-
-  .coll-top{ display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:18px; }
-  .coll-ring{
-    width:50px; height:50px;
-    border-radius: 50%;
-    border: 1.5px solid var(--gold);
-    display:flex; align-items:center; justify-content:center;
-    position:relative;
-    flex:none;
-  }
-  .coll-ring::after{
-    content:""; position:absolute; inset:-5px; border-radius:50%;
-    border: 1px solid rgba(179,144,63,0.25);
-  }
-  .coll-ring svg{ width:22px; height:22px; color: var(--forest); }
-
-  .coll-script{
-    font-family:'Cormorant Garamond', serif;
-    font-weight:600;
-    font-size:26px;
-    color: rgba(179,144,63,0.35);
-    line-height:1;
-  }
-
-  .coll-title{
-    font-family:'Playfair Display', serif;
-    font-weight:700;
-    font-size:19px;
-    color: var(--ink);
-    margin-bottom: 14px;
-    line-height:1.25;
-  }
-
-  .coll-meta{ display:flex; flex-direction:column; gap:9px; margin-bottom:22px; }
-  .coll-meta-row{
-    display:flex; align-items:center; gap:9px;
-    font-size:13px; color: var(--muted);
-  }
-  .coll-meta-row svg{ width:15px; height:15px; color: var(--gold); flex:none; }
-  .coll-meta-row strong{ color: var(--ink); font-weight:600; }
-
-  .coll-divider{ height:1px; background: rgba(0,0,0,0.07); margin: 0 0 18px 0; }
-
-  .btn-open{
-    display:flex; align-items:center; justify-content:center; gap:8px;
-    background: transparent;
-    border: 1.5px solid var(--forest);
-    color: var(--forest);
-    border-radius: 11px;
-    padding: 12px;
-    font-size: 13.5px;
-    font-weight:600;
-    letter-spacing:0.01em;
-    cursor:pointer;
-    transition: background .25s ease, color .25s ease, transform .2s ease;
-    margin-top:auto;
-  }
-  .btn-open svg{ width:14px; height:14px; transition: transform .2s ease; }
-  .btn-open:hover{ background: var(--forest); color:#f4efe3; transform: translateY(-1px); }
-  .btn-open:hover svg{ transform: translateX(3px); }
-
-  .detail-desc{
-  font-size:13.5px;
-  color: var(--muted);
-  margin-top:8px;
-  max-width:520px;
-}
-
-  /* ---- empty / create card ---- */
-  .coll-card.new{
-    align-items:center; justify-content:center;
-    text-align:center;
-    border: 1.5px dashed rgba(179,144,63,0.4);
-    background: rgba(179,144,63,0.03);
-    box-shadow:none;
-    cursor:pointer;
-    min-height: 100%;
-  }
-  .coll-card.new::before{ display:none; }
-  .coll-card.new:hover{ border-color: var(--gold); background: rgba(179,144,63,0.07); box-shadow:none; }
-  .new-icon{
-    width:52px; height:52px;
-    border-radius:50%;
-    border: 1.5px solid var(--gold);
-    display:flex; align-items:center; justify-content:center;
-    margin: 6px auto 16px auto;
-  }
-  .new-icon svg{ width:22px; height:22px; color: var(--gold); }
-  .coll-card.new h3{
-    font-family:'Playfair Display', serif; font-weight:600; font-size:17px;
-    color: var(--ink); margin-bottom:6px;
-  }
-  .coll-card.new p{ font-size:12.5px; color: var(--muted); max-width:200px; margin: 0 auto; line-height:1.5; }
+  .btn-logout:hover{ background: var(--danger); color:#fff; }
 
   /* ================= RESPONSIVE ================= */
-  @media (max-width: 1080px){
-    .grid{ grid-template-columns: repeat(2, 1fr); }
-  }
   @media (max-width: 980px){
     .app{ grid-template-columns: 1fr; }
     .sidebar{ display:none; }
     .content{ padding: 28px 20px 50px 20px; }
     .topbar{ padding: 18px 20px; }
     .page-head{ flex-direction:column; align-items:flex-start; gap:16px; }
-  }
-  @media (max-width: 620px){
-    .grid{ grid-template-columns: 1fr; }
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -504,39 +291,39 @@
       <div class="sidebar-particles" id="particles"></div>
 
       <div class="brand">
-        <div class="brand-mark"><img src="LOGO.png" alt="Revive Script"></div>
+        <div class="brand-mark"><img src="/static/LOGO.png" alt="Revive Script"></div>
         <div class="brand-name">Revive Script<em>Restore. Reconstruct. Preserve.</em></div>
       </div>
 
       <nav>
-        <a href="dashboard.html" class="nav-item">
+        <a href="/dashboard" class="nav-item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
           Dashboard
         </a>
-        <a href="collections.html" class="nav-item">
+        <a href="/collections" class="nav-item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg>
           Collections
         </a>
-        <a href="manuscripts.html" class="nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>
-            Manuscripts
+        <a href="/manuscripts" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>
+          Manuscripts
         </a>
-        <div class="nav-item">
+        <a href="/reconstruction-detail" class="nav-item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></svg>
           AI Jobs
-        </div>
-        <a href="search.html" class="nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-            Search
         </a>
-        <a href="provenance.html" class="nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
-            Provenance
+        <a href="/search" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          Search
+        </a>
+        <a href="/provenance" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+          Provenance
         </a>
 
         <div class="nav-label">System</div>
-        <a href="settings.html" class="nav-item active">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <a href="/settings" class="nav-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           Settings
         </a>
       </nav>
@@ -552,103 +339,139 @@
       <div class="topbar">
         <div class="search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-          <input type="text" id="topbarSearch" placeholder="Search collections..." onkeydown="if(event.key==='Enter') window.location.href='search.html?q='+encodeURIComponent(this.value)">
+          <input type="text" id="topbarSearch" placeholder="Search settings or collections..." onkeydown="if(event.key==='Enter') window.location.href='/search?q='+encodeURIComponent(this.value)">
         </div>
         <div class="topbar-right">
           <div class="icon-btn" title="Notifications">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
           </div>
-          <a href="settings.html" class="user-chip">
-            <div class="user-avatar">A</div>
-            <div class="user-name">Ankita</div>
+          <a href="/settings" class="user-chip">
+            <div class="user-avatar" id="userAvatar">A</div>
+            <div class="user-name" id="userName">User</div>
           </a>
         </div>
       </div>
 
       <div class="content">
-    <div class="page-head">
-    <div class="page-head-left">
-      <div class="eyebrow">Settings</div>
-      <h1>Profile</h1>
-      <p class="detail-desc">Your account details and authentication.</p>
-    </div>
-  </div>
+        <div class="page-head">
+          <div class="page-head-left">
+            <div class="eyebrow">Settings</div>
+            <h1>Profile</h1>
+            <p class="detail-desc">Your account details and authentication configuration.</p>
+          </div>
+        </div>
 
         <div class="profile-panel">
-    <div class="profile-header">
-      <div class="profile-avatar" id="profAvatar"></div>
-      <div>
-        <h2 id="profName"></h2>
-        <span id="profRole"></span>
+          <div class="profile-header">
+            <div class="profile-avatar" id="profAvatar">A</div>
+            <div>
+              <h2 id="profName">Loading...</h2>
+              <span id="profRole">Scholar</span>
+            </div>
+          </div>
+
+          <div class="profile-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+            <div>
+              <div class="profile-row-label">Email</div>
+              <div class="profile-row-value" id="profEmail">user@example.com</div>
+            </div>
+          </div>
+
+          <div class="modal-field">
+            <label>Active Authentication Providers</label>
+            <div class="auth-badges">
+              <span class="auth-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Email</span>
+              <span class="auth-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>OAuth2 / Google</span>
+            </div>
+          </div>
+
+          <button class="btn-logout" onclick="logout()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+            Logout
+          </button>
+        </div>
       </div>
-    </div>
-
-    <div class="profile-row">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
-      <div>
-        <div class="profile-row-label">Email</div>
-        <div class="profile-row-value" id="profEmail"></div>
-      </div>
-    </div>
-
-    <div class="modal-field">
-      <label>Authentication</label>
-      <div class="auth-badges">
-        <span class="auth-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Email</span>
-        <span class="auth-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Google</span>
-      </div>
-    </div>
-
-    <button class="btn-logout" onclick="logout()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
-      Logout
-    </button>
-  </div>
-</div>
-
     </main>
   </div>
 
-
 <script>
+  // Floating Particles
   const field = document.getElementById('particles');
   const COUNT = 14;
   for (let i = 0; i < COUNT; i++) {
     const p = document.createElement('div');
     p.className = 'sp';
-    const size = (Math.random() * 2 + 1.2).toFixed(1);
-    const dur = (Math.random() * 12 + 16).toFixed(1);
-    const delay = (Math.random() * 16).toFixed(1);
-    const top = (Math.random() * 100).toFixed(1);
-    const left = (Math.random() * 100).toFixed(1);
-    const o = (Math.random() * 0.3 + 0.15).toFixed(2);
-    p.style.setProperty('--s', size + 'px');
-    p.style.setProperty('--dur', dur + 's');
-    p.style.setProperty('--delay', delay + 's');
-    p.style.setProperty('--top', top + '%');
-    p.style.setProperty('--left', left + '%');
-    p.style.setProperty('--o', o);
+    p.style.setProperty('--s', (Math.random() * 2 + 1.2).toFixed(1) + 'px');
+    p.style.setProperty('--dur', (Math.random() * 12 + 16).toFixed(1) + 's');
+    p.style.setProperty('--delay', (Math.random() * 16).toFixed(1) + 's');
+    p.style.setProperty('--top', (Math.random() * 100).toFixed(1) + '%');
+    p.style.setProperty('--left', (Math.random() * 100).toFixed(1) + '%');
+    p.style.setProperty('--o', (Math.random() * 0.3 + 0.15).toFixed(2));
     field.appendChild(p);
   }
 
-  function openCreateModal(){
-  document.getElementById('createModal').classList.add('open');
-}
-function closeCreateModal(){
-  document.getElementById('createModal').classList.remove('open');
-}
-const profile = { name: "Ankita", email: "ankita@revivescript.org", role: "Researcher" };
+  function getAuthHeaders() {
+    const token = localStorage.getItem('access_token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token && token !== 'undefined' && token !== 'null') {
+      headers['Authorization'] = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+    }
+    return headers;
+  }
 
-document.getElementById('profAvatar').textContent = profile.name.charAt(0);
-document.getElementById('profName').textContent = profile.name;
-document.getElementById('profEmail').textContent = profile.email;
-document.getElementById('profRole').textContent = profile.role;
+  async function loadProfile() {
+    const headers = getAuthHeaders();
+    const fetchOptions = { headers, credentials: 'include' };
 
-function logout(){
-  window.location.href = 'login.html';
-}
+    try {
+      const res = await fetch('/auth/me', fetchOptions);
+      if (res.ok && (res.headers.get('content-type') || '').includes('application/json')) {
+        const user = await res.json();
+        const displayName = user.name || user.full_name || user.email || 'Scholar';
+        const displayEmail = user.email || 'scholar@revivescript.org';
+        const displayRole = (user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Researcher');
+
+        document.getElementById('profAvatar').textContent = displayName.charAt(0).toUpperCase();
+        document.getElementById('profName').textContent = displayName;
+        document.getElementById('profEmail').textContent = displayEmail;
+        document.getElementById('profRole').textContent = displayRole;
+
+        document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
+        document.getElementById('userName').textContent = displayName;
+        return;
+      }
+    } catch (e) {
+      console.warn('Backend profile endpoint offline, loading fallback defaults:', e);
+    }
+
+    const fallbackName = 'Scholar';
+    document.getElementById('profAvatar').textContent = fallbackName.charAt(0);
+    document.getElementById('profName').textContent = fallbackName;
+    document.getElementById('profEmail').textContent = 'scholar@revivescript.org';
+    document.getElementById('profRole').textContent = 'Researcher';
+  }
+
+  async function logout() {
+    try {
+      await fetch('/auth/logout', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        credentials: 'include'
+      });
+    } catch(e) {
+      console.warn('Logged out locally:', e);
+    } finally {
+      // Clear token and redirect
+      localStorage.removeItem('access_token');
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = '/login';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadProfile);
 </script>
-
 
 </body>
 </html>

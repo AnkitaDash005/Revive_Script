@@ -1,5 +1,5 @@
 import jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -8,43 +8,52 @@ from app.core.config import settings
 from app.core.dependencies import get_db
 from app.models.user import User
 
-
-bearer_scheme = HTTPBearer()
+bearer_scheme = HTTPBearer(auto_error=False)
 
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(  # noqa: B008
-        bearer_scheme
-    ),
-    db: Session = Depends(get_db),  # noqa: B008
+    request: Request,
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    db: Session = Depends(get_db),
 ) -> User:
+    tokens_to_try = []
 
-    token = credentials.credentials
+    # 1. Bearer header token
+    if credentials and credentials.credentials:
+        tokens_to_try.append(credentials.credentials)
 
-    try:
-        payload = jwt.decode(
-            token,
-            settings.jwt_secret_key,
-            algorithms=[settings.jwt_algorithm],
-        )
+    # 2. Cookie session token
+    cookie_token = request.cookies.get("access_token")
+    if cookie_token:
+        tokens_to_try.append(cookie_token.replace("Bearer ", "").strip())
 
-        user_id = payload.get("sub")
-
-        if user_id is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token",
-            )
-
-    except jwt.PyJWTError:
+    if not tokens_to_try:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
+            detail="Not authenticated. Please log in.",
         )
 
-    user = db.scalar(
-        select(User).where(User.id == int(user_id))
-    )
+    user_id = None
+    for token in tokens_to_try:
+        try:
+            payload = jwt.decode(
+                token,
+                settings.jwt_secret_key,
+                algorithms=[settings.jwt_algorithm],
+            )
+            user_id = payload.get("sub") or payload.get("user_id")
+            if user_id:
+                break
+        except jwt.PyJWTError:
+            continue
+
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token. Please log in again.",
+        )
+
+    user = db.scalar(select(User).where(User.id == int(user_id)))
 
     if user is None:
         raise HTTPException(

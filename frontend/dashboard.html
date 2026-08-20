@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" href="LOGO.png" />
+<link rel="icon" type="image/png" href="/static/LOGO.png" />
 <title>Revive Script — Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -44,7 +44,7 @@
     position:relative;
     background:
       linear-gradient(180deg, rgba(16,22,15,0.94) 0%, rgba(16,22,15,0.97) 60%, rgba(10,14,10,0.98) 100%),
-      url('Background.png');
+      url('/static/Background.png');
     background-size: cover;
     background-position: center 30%;
     color: #f4efe3;
@@ -120,8 +120,7 @@
     display:flex; align-items:center; gap:13px;
     padding: 11px 14px;
     border-radius: 10px;
-    font-size:14px;
-    font-weight:500;
+    font-size:14px; font-weight:500;
     color: rgba(244,239,227,0.78);
     transition: background .2s ease, color .2s ease, transform .2s ease;
     position:relative;
@@ -219,8 +218,7 @@
   }
   .user-chip:hover{ box-shadow:0 4px 12px rgba(0,0,0,0.08); }
   .user-avatar{
-    width:30px; height:30px;
-    border-radius:50%;
+    width:30px; height:30px; border-radius:50%;
     background: linear-gradient(160deg, var(--forest), var(--forest-deep));
     color: var(--gold-soft);
     display:flex; align-items:center; justify-content:center;
@@ -307,7 +305,7 @@
     text-transform:uppercase;
   }
 
-  /* ---- recent collections: manuscript strip cards ---- */
+  /* ---- recent collections ---- */
   .collections{ display:flex; flex-direction:column; gap:14px; margin-bottom:40px; }
   .manu-card{
     position:relative;
@@ -373,6 +371,7 @@
     position:relative;
     overflow:hidden;
     box-shadow: 0 12px 26px rgba(16,22,15,0.25);
+    cursor:pointer;
   }
   .qa-card svg{ width:22px; height:22px; color: var(--gold-soft); margin-bottom:14px; }
   .qa-card h4{ font-family:'Playfair Display', serif; font-size:16px; font-weight:600; margin-bottom:6px; }
@@ -381,7 +380,6 @@
   .qa-link svg{ width:12px; height:12px; margin:0; color: var(--gold-soft); transition: transform .2s ease; }
   .qa-card:hover .qa-link svg{ transform: translateX(3px); }
 
-  /* ================= RESPONSIVE ================= */
   @media (max-width: 980px){
     .app{ grid-template-columns: 1fr; }
     .sidebar{ display:none; }
@@ -390,54 +388,49 @@
     .content{ padding: 28px 20px 50px 20px; }
     .topbar{ padding: 18px 20px; }
   }
-
-  @media (prefers-reduced-motion: reduce){
-    *{ animation:none !important; transition:none !important; }
-  }
 </style>
 </head>
 <body>
 
   <div class="app">
 
-    <!-- ============ SIDEBAR ============ -->
     <aside class="sidebar">
       <div class="sidebar-particles" id="particles"></div>
 
       <div class="brand">
-        <div class="brand-mark"><img src="LOGO.png" alt="Revive Script"></div>
+        <div class="brand-mark"><img src="/static/LOGO.png" alt="Revive Script"></div>
         <div class="brand-name">Revive Script<em>Restore. Reconstruct. Preserve.</em></div>
       </div>
 
       <nav>
-        <a href="dashboard.html" class="nav-item active">
+        <a href="/dashboard" class="nav-item active">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
           Dashboard
         </a>
-        <a href="collections.html" class="nav-item">
+        <a href="/collections" class="nav-item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg>
           Collections
         </a>
-        <a href="manuscripts.html" class="nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>
-            Manuscripts
+        <a href="/manuscripts" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>
+          Manuscripts
         </a>
-        <div class="nav-item">
+        <a href="/reconstruction-detail" class="nav-item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></svg>
           AI Jobs
-        </div>
-        <a href="search.html" class="nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-            Search
         </a>
-        <a href="provenance.html" class="nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
-            Provenance
+        <a href="/search" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          Search
+        </a>
+        <a href="/provenance" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+          Provenance
         </a>
 
         <div class="nav-label">System</div>
-        <a href="settings.html" class="nav-item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <a href="/settings" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           Settings
         </a>
       </nav>
@@ -448,20 +441,16 @@
       </div>
     </aside>
 
-    <!-- ============ MAIN ============ -->
     <main>
       <div class="topbar">
         <div class="search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-          <input type="text" id="topbarSearch" placeholder="Search collections..." onkeydown="if(event.key==='Enter') window.location.href='search.html?q='+encodeURIComponent(this.value)">
+          <input type="text" id="topbarSearch" placeholder="Search collections..." onkeydown="if(event.key==='Enter') window.location.href='/search?q='+encodeURIComponent(this.value)">
         </div>
         <div class="topbar-right">
-          <div class="icon-btn" title="Notifications">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
-          </div>
-          <a href="settings.html" class="user-chip">
-            <div class="user-avatar">A</div>
-            <div class="user-name">Ankita</div>
+          <a href="/settings" class="user-chip">
+            <div class="user-avatar" id="userAvatar">A</div>
+            <div class="user-name" id="userName">User</div>
           </a>
         </div>
       </div>
@@ -469,7 +458,7 @@
       <div class="content">
         <div class="welcome">
           <div class="welcome-eyebrow">Welcome back</div>
-          <h1>Good to see you, Ankita</h1>
+          <h1 id="welcomeGreeting">Good to see you</h1>
         </div>
 
         <div class="section-title">Your Research<div class="rule"></div></div>
@@ -480,7 +469,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg>
               </div>
             </div>
-            <div class="stat-value">12</div>
+            <div class="stat-value" id="statCollections">--</div>
             <div class="stat-label">Collections</div>
           </div>
           <div class="stat-card">
@@ -489,7 +478,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>
               </div>
             </div>
-            <div class="stat-value">34</div>
+            <div class="stat-value" id="statManuscripts">--</div>
             <div class="stat-label">Manuscripts</div>
           </div>
           <div class="stat-card">
@@ -498,63 +487,29 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
               </div>
             </div>
-            <div class="stat-value">8</div>
+            <div class="stat-value" id="statPending">--</div>
             <div class="stat-label">Pending</div>
           </div>
         </div>
 
         <div class="section-title">Recent Collections<div class="rule"></div></div>
-        <div class="collections">
-          <div class="manu-card">
-            <div class="manu-cord"></div>
-            <div class="manu-body">
-              <div class="manu-title">Odia Palm Manuscripts</div>
-              <div class="manu-sub">Palm-leaf · Odisha · 14 folios</div>
-            </div>
-            <div class="manu-meta">
-              Open
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-            </div>
-          </div>
-          <div class="manu-card">
-            <div class="manu-cord"></div>
-            <div class="manu-body">
-              <div class="manu-title">Temple Records</div>
-              <div class="manu-sub">Stone inscription · Copper plate · 9 folios</div>
-            </div>
-            <div class="manu-meta">
-              Open
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-            </div>
-          </div>
-          <div class="manu-card">
-            <div class="manu-cord"></div>
-            <div class="manu-body">
-              <div class="manu-title">Historical Documents</div>
-              <div class="manu-sub">Paper manuscript · Mixed scripts · 21 folios</div>
-            </div>
-            <div class="manu-meta">
-              Open
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-            </div>
-          </div>
-        </div>
+        <div class="collections" id="collectionsContainer"></div>
 
         <div class="section-title">Quick Actions<div class="rule"></div></div>
         <div class="quick-actions">
-          <div class="qa-card">
+          <div class="qa-card" onclick="window.location.href='/collections'">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg>
             <h4>New Collection</h4>
             <p>Start a fresh archive for a set of related manuscripts.</p>
             <div class="qa-link">Create now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
           </div>
-          <div class="qa-card">
+          <div class="qa-card" onclick="window.location.href='/reconstruction-detail'">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></svg>
             <h4>Run AI Restoration</h4>
             <p>Enhance faded text and reconstruct missing fragments.</p>
             <div class="qa-link">Start a job <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
           </div>
-          <div class="qa-card">
+          <div class="qa-card" onclick="window.location.href='/provenance'">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
             <h4>Verify Provenance</h4>
             <p>Review scholar annotations awaiting your sign-off.</p>
@@ -566,26 +521,93 @@
   </div>
 
 <script>
+  // Sidebar floating particles
   const field = document.getElementById('particles');
   const COUNT = 14;
   for (let i = 0; i < COUNT; i++) {
     const p = document.createElement('div');
     p.className = 'sp';
-    const size = (Math.random() * 2 + 1.2).toFixed(1);
-    const dur = (Math.random() * 12 + 16).toFixed(1);
-    const delay = (Math.random() * 16).toFixed(1);
-    const top = (Math.random() * 100).toFixed(1);
-    const left = (Math.random() * 100).toFixed(1);
-    const o = (Math.random() * 0.3 + 0.15).toFixed(2);
-    p.style.setProperty('--s', size + 'px');
-    p.style.setProperty('--dur', dur + 's');
-    p.style.setProperty('--delay', delay + 's');
-    p.style.setProperty('--top', top + '%');
-    p.style.setProperty('--left', left + '%');
-    p.style.setProperty('--o', o);
+    p.style.setProperty('--s', (Math.random() * 2 + 1.2).toFixed(1) + 'px');
+    p.style.setProperty('--dur', (Math.random() * 12 + 16).toFixed(1) + 's');
+    p.style.setProperty('--delay', (Math.random() * 16).toFixed(1) + 's');
+    p.style.setProperty('--top', (Math.random() * 100).toFixed(1) + '%');
+    p.style.setProperty('--left', (Math.random() * 100).toFixed(1) + '%');
+    p.style.setProperty('--o', (Math.random() * 0.3 + 0.15).toFixed(2));
     field.appendChild(p);
   }
-</script>
 
+  function getAuthHeaders() {
+    const token = localStorage.getItem('access_token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token && token !== 'undefined' && token !== 'null') {
+      headers['Authorization'] = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+    }
+    return headers;
+  }
+
+  async function loadDashboard() {
+    const headers = getAuthHeaders();
+    const fetchOptions = { headers, credentials: 'include' };
+
+    try {
+      // 1. Fetch User Profile (/auth/me)
+      const authRes = await fetch('/auth/me', fetchOptions);
+      if (authRes.ok && (authRes.headers.get('content-type') || '').includes('application/json')) {
+        const user = await authRes.json();
+        const displayName = user.name || user.full_name || user.email || 'Scholar';
+        document.getElementById('userName').textContent = displayName;
+        document.getElementById('welcomeGreeting').textContent = `Good to see you, ${displayName}`;
+        document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
+      }
+
+      // 2. Fetch Collections Summary (/api/collections)
+      const colRes = await fetch('/api/collections', fetchOptions);
+      if (colRes.ok && (colRes.headers.get('content-type') || '').includes('application/json')) {
+        const collections = await colRes.json();
+        const collList = Array.isArray(collections) ? collections : [];
+        document.getElementById('statCollections').textContent = collList.length;
+
+        const container = document.getElementById('collectionsContainer');
+        container.innerHTML = '';
+
+        if (collList.length === 0) {
+          container.innerHTML = '<p style="color: var(--muted); font-size: 14px;">No collections found. Create your first archive below.</p>';
+        } else {
+          collList.slice(0, 3).forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'manu-card';
+            card.onclick = () => window.location.href = `/collection-detail?id=${item.id}`;
+            card.innerHTML = `
+              <div class="manu-cord"></div>
+              <div class="manu-body">
+                <div class="manu-title">${item.name || item.title || 'Untitled Collection'}</div>
+                <div class="manu-sub">${item.description || 'Manuscript Collection'}</div>
+              </div>
+              <div class="manu-meta">
+                Open
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+              </div>
+            `;
+            container.appendChild(card);
+          });
+        }
+      } else {
+        document.getElementById('statCollections').textContent = '0';
+      }
+
+      // Default placeholders
+      document.getElementById('statManuscripts').textContent = '0';
+      document.getElementById('statPending').textContent = '0';
+
+    } catch (error) {
+      console.warn('Dashboard data fetch fallback active:', error);
+      document.getElementById('statCollections').textContent = '0';
+      document.getElementById('statManuscripts').textContent = '0';
+      document.getElementById('statPending').textContent = '0';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadDashboard);
+</script>
 </body>
 </html>

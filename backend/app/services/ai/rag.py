@@ -11,15 +11,7 @@ class RAGService(AIService):
     Retrieval-Augmented Generation service.
 
     Flow:
-        Query
-          ↓
-        Embedding
-          ↓
-        Qdrant retrieval
-          ↓
-        Context construction
-          ↓
-        Gemini generation
+        Query -> Embedding -> Qdrant retrieval -> Context construction -> Gemini generation
     """
 
     def __init__(self) -> None:
@@ -33,94 +25,76 @@ class RAGService(AIService):
         page_id: int,
         input_data: Any,
     ) -> dict:
-
         if not isinstance(input_data, dict):
-            raise TypeError(
-                "RAG input_data must be a dictionary"
-            )
+            raise TypeError("RAG input_data must be a dictionary")
 
         query = input_data.get("query")
-
         if not query:
-            raise ValueError(
-                "query is required"
-            )
+            raise ValueError("query is required")
 
         limit = input_data.get("limit", 5)
 
-        # --------------------------------------------------
         # 1. Convert query into embedding
-        # --------------------------------------------------
-
         embedding_result = self.embedding_service.process(
             page_id=page_id,
             input_data=query,
         )
-
         query_embedding = embedding_result["embedding"]
 
-        # --------------------------------------------------
         # 2. Search Qdrant
-        # --------------------------------------------------
-
         retrieved_results = self.qdrant_service.search(
             embedding=query_embedding,
             limit=limit,
         )
 
-        # --------------------------------------------------
         # 3. Build context from retrieved manuscripts
-        # --------------------------------------------------
-
         context_parts = []
-
         for result in retrieved_results:
-            payload = result.get("payload") or {}
+            payload = result.get("payload") if isinstance(result, dict) else getattr(result, "payload", {})
+            if not payload:
+                continue
 
             text = payload.get("text")
-
             if not text:
                 continue
 
+            score = result.get("score") if isinstance(result, dict) else getattr(result, "score", None)
+
             context_parts.append(
-                
-                    f"Page ID: {payload.get('page_id')}\n"
-                    f"Manuscript ID: {payload.get('manuscript_id')}\n"
-                    f"Script: {payload.get('script')}\n"
-                    f"Language: {payload.get('language')}\n"
-                    f"Similarity: {result.get('score')}\n\n"
-                    f"Text:\n{text}"
-                
+                f"Page ID: {payload.get('page_id')}\n"
+                f"Manuscript ID: {payload.get('manuscript_id')}\n"
+                f"Script: {payload.get('script')}\n"
+                f"Language: {payload.get('language')}\n"
+                f"Similarity: {score}\n\n"
+                f"Text:\n{text}"
             )
 
         context = "\n\n---\n\n".join(context_parts)
 
-        # --------------------------------------------------
-        # 4. No relevant information found
-        # --------------------------------------------------
-
+        # 4. No relevant information found fallback
         if not context:
             return {
                 "page_id": page_id,
                 "query": query,
                 "retrieved": [],
                 "context": "",
+                "rag_context": "",
                 "answer": "No relevant manuscript information was found.",
             }
 
-        # --------------------------------------------------
-        # 5. Return retrieved context
-        #
-        # Gemini generation will be connected in the next
-        # B2.8 step after retrieval is verified.
-        # --------------------------------------------------
+        # 5. Generate research answer with Gemini
+        answer = self.vlm_service.generate_from_context(
+            query=query,
+            context=context,
+        )
 
         return {
             "page_id": page_id,
             "query": query,
             "retrieved": retrieved_results,
             "context": context,
-            "answer": None,
+            "rag_context": context,
+            "answer": answer,
         }
 
     def index_text(
@@ -136,7 +110,6 @@ class RAGService(AIService):
         """
         Convert manuscript text into an embedding and store it in Qdrant.
         """
-
         if not text or not text.strip():
             raise ValueError("text cannot be empty")
 

@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" href="LOGO.png" />
-<title>Revive Script — Collections</title>
+<link rel="icon" type="image/png" href="/static/LOGO.png" />
+<title>Revive Script — Collection Details</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -18,6 +18,7 @@
     --forest: #1f2e22;
     --forest-deep: #17231a;
     --muted: #6b7268;
+    --error: #b3261e;
   }
 
   *{box-sizing:border-box; margin:0; padding:0;}
@@ -33,19 +34,18 @@
   a{ color:inherit; text-decoration:none; }
   button{ font-family:'Inter', sans-serif; }
 
-  /* ================= LAYOUT ================= */
   .app{
     display:grid;
     grid-template-columns: 264px 1fr;
     min-height:100vh;
   }
 
-  /* ================= SIDEBAR ================= */
+  /* SIDEBAR */
   .sidebar{
     position:relative;
     background:
       linear-gradient(180deg, rgba(16,22,15,0.94) 0%, rgba(16,22,15,0.97) 60%, rgba(10,14,10,0.98) 100%),
-      url('Background.png');
+      url('/static/Background.png');
     background-size: cover;
     background-position: center 30%;
     color: #f4efe3;
@@ -114,7 +114,7 @@
   }
   .sidebar-footer svg{ width:14px; height:14px; color: var(--gold-soft); flex:none; }
 
-  /* ================= MAIN ================= */
+  /* MAIN CONTENT */
   main{ background: var(--parchment); position:relative; min-height:100vh; }
   main::before{
     content:"";
@@ -151,22 +151,11 @@
   .search svg{ position:absolute; left:14px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:#7a7563; pointer-events:none; }
 
   .topbar-right{ display:flex; align-items:center; gap:18px; flex:none; }
-  .icon-btn{
-    width:38px; height:38px; border-radius:50%;
-    border:1px solid rgba(0,0,0,0.08); background:#fff;
-    display:flex; align-items:center; justify-content:center;
-    color: var(--ink); cursor:pointer;
-    transition: box-shadow .2s ease, border-color .2s ease;
-  }
-  .icon-btn:hover{ box-shadow:0 4px 12px rgba(0,0,0,0.08); border-color: rgba(179,144,63,0.4); }
-  .icon-btn svg{ width:16px; height:16px; }
   .user-chip{
     display:flex; align-items:center; gap:10px;
     padding: 6px 14px 6px 6px; border-radius: 999px;
     border: 1px solid rgba(0,0,0,0.08); background:#fff; cursor:pointer;
-    transition: box-shadow .2s ease;
   }
-  .user-chip:hover{ box-shadow:0 4px 12px rgba(0,0,0,0.08); }
   .user-avatar{
     width:30px; height:30px; border-radius:50%;
     background: linear-gradient(160deg, var(--forest), var(--forest-deep));
@@ -176,7 +165,6 @@
   }
   .user-name{ font-size:13.5px; font-weight:600; color:var(--ink); }
 
-  /* ================= CONTENT ================= */
   .content{ position:relative; z-index:1; padding: 36px 40px 60px 40px; max-width:1220px; }
 
   .page-head{
@@ -185,11 +173,18 @@
   }
   .page-head-left .eyebrow{
     font-family:'Cormorant Garamond', serif; font-style:italic;
-    font-size:16px; color: var(--gold); margin-bottom:6px;
+    font-size:18px; color: var(--gold); margin-bottom:6px;
   }
   .page-head-left h1{
     font-family:'Playfair Display', serif; font-weight:700;
     font-size: clamp(26px, 3vw, 34px); color: var(--ink); letter-spacing:-0.01em;
+  }
+  .detail-desc{
+    font-size:14px;
+    color: var(--muted);
+    margin-top:8px;
+    max-width:680px;
+    line-height: 1.5;
   }
 
   .btn-create{
@@ -210,72 +205,6 @@
   }
   .btn-create svg{ width:16px; height:16px; color: var(--gold-soft); }
   .btn-create:hover{ transform: translateY(-1px); box-shadow: 0 10px 24px rgba(23,35,26,0.35); }
-  .btn-create::after{
-    content:""; position:absolute; top:0; left:-60%; width:40%; height:100%;
-    background: linear-gradient(115deg, transparent, rgba(255,255,255,0.15), transparent);
-    transform: skewX(-20deg); transition: left .6s ease;
-  }
-  .btn-create:hover::after{ left: 130%; }
-
-  .modal-overlay{
-  position:fixed; inset:0; z-index:50;
-  background: rgba(16,22,15,0.55);
-  backdrop-filter: blur(4px);
-  display:none; align-items:center; justify-content:center;
-  padding:20px;
-}
-.modal-overlay.open{ display:flex; }
-
-.modal-card{
-  width:100%; max-width:460px;
-  background: var(--parchment);
-  border-radius:18px;
-  border:1px solid rgba(0,0,0,0.06);
-  box-shadow: 0 30px 70px rgba(0,0,0,0.35);
-  padding: 30px 32px 28px 32px;
-  position:relative;
-}
-
-.modal-head{ display:flex; align-items:flex-start; gap:14px; margin-bottom:22px; }
-.modal-ring{
-  width:44px; height:44px; flex:none;
-  border-radius:50%; border:1.5px solid var(--gold);
-  display:flex; align-items:center; justify-content:center;
-}
-.modal-ring svg{ width:20px; height:20px; color:var(--forest); }
-.modal-head h2{ font-family:'Playfair Display', serif; font-size:20px; color:var(--ink); }
-.modal-head p{ font-size:12.5px; color:var(--muted); margin-top:3px; }
-.modal-close{
-  margin-left:auto; background:none; border:none; cursor:pointer;
-  color:var(--muted); width:28px; height:28px;
-}
-.modal-close svg{ width:16px; height:16px; }
-
-.modal-field{ margin-bottom:16px; }
-.modal-field label{
-  display:block; font-size:12.5px; font-weight:600;
-  color:var(--ink); margin-bottom:6px;
-}
-.modal-field input, .modal-field textarea, .modal-field select{
-  width:100%; background:#efe8d8; border:1px solid rgba(0,0,0,0.06);
-  border-radius:10px; padding:12px 14px; font-family:'Inter',sans-serif;
-  font-size:14px; color:var(--ink); outline:none; resize:vertical;
-  transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
-}
-.modal-field input:focus, .modal-field textarea:focus{
-  background:#fff; border-color:var(--gold); box-shadow:0 0 0 3px rgba(179,144,63,0.12);
-}
-
-.modal-actions{ display:flex; justify-content:flex-end; gap:12px; margin-top:22px; }
-.btn-cancel{
-  background:none; border:1.5px solid rgba(0,0,0,0.12); color:var(--ink);
-  border-radius:11px; padding:11px 18px; font-size:14px; font-weight:600; cursor:pointer;
-}
-.btn-create-submit{
-  background: linear-gradient(180deg, #21301f, #17231a); color:#f4efe3;
-  border:none; border-radius:11px; padding:11px 20px; font-size:14px;
-  font-weight:600; cursor:pointer;
-}
 
   .toolbar{
     display:flex; align-items:center; justify-content:space-between;
@@ -285,17 +214,7 @@
   }
   .toolbar-count{ font-size:13px; color: var(--muted); }
   .toolbar-count strong{ color: var(--ink); font-weight:600; }
-  .sort{
-    display:flex; align-items:center; gap:8px;
-    font-size:13px; color: var(--muted); cursor:pointer;
-  }
-  .sort svg{ width:14px; height:14px; }
 
-  .modal-row{ display:flex; gap:14px; }
-.modal-row .modal-field{ flex:1; }
-.modal-field select{ cursor:pointer; appearance:none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7268' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position: right 12px center; background-size:14px; }
-
-  /* ---- collection grid ---- */
   .grid{
     display:grid;
     grid-template-columns: repeat(3, 1fr);
@@ -310,7 +229,7 @@
     padding: 26px 26px 22px 26px;
     box-shadow: 0 12px 28px rgba(23,35,26,0.06);
     display:flex; flex-direction:column;
-    transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+    transition: transform .3s ease, box-shadow .3s ease;
     overflow:hidden;
   }
   .coll-card::before{
@@ -321,50 +240,25 @@
   .coll-card:hover{
     transform: translateY(-5px);
     box-shadow: 0 22px 40px rgba(23,35,26,0.12);
-    border-color: rgba(179,144,63,0.3);
-  }
-
-  .coll-top{ display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:18px; }
-  .coll-ring{
-    width:50px; height:50px;
-    border-radius: 50%;
-    border: 1.5px solid var(--gold);
-    display:flex; align-items:center; justify-content:center;
-    position:relative;
-    flex:none;
-  }
-  .coll-ring::after{
-    content:""; position:absolute; inset:-5px; border-radius:50%;
-    border: 1px solid rgba(179,144,63,0.25);
-  }
-  .coll-ring svg{ width:22px; height:22px; color: var(--forest); }
-
-  .coll-script{
-    font-family:'Cormorant Garamond', serif;
-    font-weight:600;
-    font-size:26px;
-    color: rgba(179,144,63,0.35);
-    line-height:1;
   }
 
   .coll-title{
     font-family:'Playfair Display', serif;
     font-weight:700;
-    font-size:19px;
+    font-size:18px;
     color: var(--ink);
     margin-bottom: 14px;
-    line-height:1.25;
+    line-height:1.3;
   }
 
-  .coll-meta{ display:flex; flex-direction:column; gap:9px; margin-bottom:22px; }
+  .coll-meta{ display:flex; flex-direction:column; gap:8px; margin-bottom:20px; }
   .coll-meta-row{
-    display:flex; align-items:center; gap:9px;
+    display:flex; align-items:center; gap:8px;
     font-size:13px; color: var(--muted);
   }
-  .coll-meta-row svg{ width:15px; height:15px; color: var(--gold); flex:none; }
   .coll-meta-row strong{ color: var(--ink); font-weight:600; }
 
-  .coll-divider{ height:1px; background: rgba(0,0,0,0.07); margin: 0 0 18px 0; }
+  .coll-divider{ height:1px; background: rgba(0,0,0,0.07); margin: 0 0 16px 0; }
 
   .btn-open{
     display:flex; align-items:center; justify-content:center; gap:8px;
@@ -372,55 +266,86 @@
     border: 1.5px solid var(--forest);
     color: var(--forest);
     border-radius: 11px;
-    padding: 12px;
+    padding: 11px;
     font-size: 13.5px;
     font-weight:600;
-    letter-spacing:0.01em;
     cursor:pointer;
-    transition: background .25s ease, color .25s ease, transform .2s ease;
+    transition: background .25s ease, color .25s ease;
     margin-top:auto;
   }
-  .btn-open svg{ width:14px; height:14px; transition: transform .2s ease; }
-  .btn-open:hover{ background: var(--forest); color:#f4efe3; transform: translateY(-1px); }
-  .btn-open:hover svg{ transform: translateX(3px); }
+  .btn-open:hover{ background: var(--forest); color:#f4efe3; }
 
-  .detail-desc{
-  font-size:13.5px;
-  color: var(--muted);
-  margin-top:8px;
-  max-width:520px;
-}
-
-  /* ---- empty / create card ---- */
-  .coll-card.new{
-    align-items:center; justify-content:center;
-    text-align:center;
-    border: 1.5px dashed rgba(179,144,63,0.4);
-    background: rgba(179,144,63,0.03);
-    box-shadow:none;
-    cursor:pointer;
-    min-height: 100%;
+  /* MODAL */
+  .modal-overlay{
+    position:fixed; inset:0; z-index:50;
+    background: rgba(16,22,15,0.55);
+    backdrop-filter: blur(4px);
+    display:none; align-items:center; justify-content:center;
+    padding:20px;
   }
-  .coll-card.new::before{ display:none; }
-  .coll-card.new:hover{ border-color: var(--gold); background: rgba(179,144,63,0.07); box-shadow:none; }
-  .new-icon{
-    width:52px; height:52px;
-    border-radius:50%;
-    border: 1.5px solid var(--gold);
+  .modal-overlay.open{ display:flex; }
+
+  .modal-card{
+    width:100%; max-width:480px;
+    background: var(--parchment);
+    border-radius:18px;
+    border:1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 30px 70px rgba(0,0,0,0.35);
+    padding: 30px 32px 28px 32px;
+    position:relative;
+  }
+
+  .modal-head{ display:flex; align-items:flex-start; gap:14px; margin-bottom:20px; }
+  .modal-ring{
+    width:44px; height:44px; flex:none;
+    border-radius:50%; border:1.5px solid var(--gold);
     display:flex; align-items:center; justify-content:center;
-    margin: 6px auto 16px auto;
   }
-  .new-icon svg{ width:22px; height:22px; color: var(--gold); }
-  .coll-card.new h3{
-    font-family:'Playfair Display', serif; font-weight:600; font-size:17px;
-    color: var(--ink); margin-bottom:6px;
+  .modal-ring svg{ width:20px; height:20px; color:var(--forest); }
+  .modal-head h2{ font-family:'Playfair Display', serif; font-size:20px; color:var(--ink); }
+  .modal-head p{ font-size:12.5px; color:var(--muted); margin-top:3px; }
+  .modal-close{
+    margin-left:auto; background:none; border:none; cursor:pointer;
+    color:var(--muted); width:28px; height:28px;
   }
-  .coll-card.new p{ font-size:12.5px; color: var(--muted); max-width:200px; margin: 0 auto; line-height:1.5; }
 
-  /* ================= RESPONSIVE ================= */
-  @media (max-width: 1080px){
-    .grid{ grid-template-columns: repeat(2, 1fr); }
+  .modal-field{ margin-bottom:14px; }
+  .modal-field label{
+    display:block; font-size:12.5px; font-weight:600;
+    color:var(--ink); margin-bottom:6px;
   }
+  .modal-field input, .modal-field textarea, .modal-field select{
+    width:100%; background:#efe8d8; border:1px solid rgba(0,0,0,0.06);
+    border-radius:10px; padding:11px 14px; font-family:'Inter',sans-serif;
+    font-size:14px; color:var(--ink); outline:none; resize:vertical;
+  }
+  .modal-field input:focus, .modal-field textarea:focus, .modal-field select:focus{
+    background:#fff; border-color:var(--gold); box-shadow:0 0 0 3px rgba(179,144,63,0.12);
+  }
+
+  .modal-row{ display:flex; gap:14px; }
+  .modal-row .modal-field{ flex:1; }
+
+  .modal-error{
+    color: var(--error);
+    font-size: 13px;
+    margin-bottom: 12px;
+    display: none;
+    line-height: 1.4;
+  }
+
+  .modal-actions{ display:flex; justify-content:flex-end; gap:12px; margin-top:20px; }
+  .btn-cancel{
+    background:none; border:1.5px solid rgba(0,0,0,0.12); color:var(--ink);
+    border-radius:11px; padding:11px 18px; font-size:14px; font-weight:600; cursor:pointer;
+  }
+  .btn-create-submit{
+    background: linear-gradient(180deg, #21301f, #17231a); color:#f4efe3;
+    border:none; border-radius:11px; padding:11px 20px; font-size:14px;
+    font-weight:600; cursor:pointer;
+  }
+
+  @media (max-width: 1080px){ .grid{ grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 980px){
     .app{ grid-template-columns: 1fr; }
     .sidebar{ display:none; }
@@ -428,57 +353,50 @@
     .topbar{ padding: 18px 20px; }
     .page-head{ flex-direction:column; align-items:flex-start; gap:16px; }
   }
-  @media (max-width: 620px){
-    .grid{ grid-template-columns: 1fr; }
-  }
-
-  @media (prefers-reduced-motion: reduce){
-    *{ animation:none !important; transition:none !important; }
-  }
+  @media (max-width: 620px){ .grid{ grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 
   <div class="app">
 
-    <!-- ============ SIDEBAR ============ -->
     <aside class="sidebar">
       <div class="sidebar-particles" id="particles"></div>
 
       <div class="brand">
-        <div class="brand-mark"><img src="LOGO.png" alt="Revive Script"></div>
+        <div class="brand-mark"><img src="/static/LOGO.png" alt="Revive Script"></div>
         <div class="brand-name">Revive Script<em>Restore. Reconstruct. Preserve.</em></div>
       </div>
 
       <nav>
-        <a href="dashboard.html" class="nav-item">
+        <a href="/dashboard" class="nav-item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
           Dashboard
         </a>
-        <a href="collections.html" class="nav-item active">
+        <a href="/collections" class="nav-item active">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg>
           Collections
         </a>
-        <a href="manuscripts.html" class="nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>
-            Manuscripts
+        <a href="/manuscripts" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>
+          Manuscripts
         </a>
-        <div class="nav-item">
+        <a href="/reconstruction-detail" class="nav-item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></svg>
           AI Jobs
-        </div>
-        <a href="search.html" class="nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-            Search
         </a>
-        <a href="provenance.html" class="nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
-            Provenance
+        <a href="/search" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          Search
+        </a>
+        <a href="/provenance" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+          Provenance
         </a>
 
         <div class="nav-label">System</div>
-        <a href="settings.html" class="nav-item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <a href="/settings" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           Settings
         </a>
       </nav>
@@ -489,244 +407,292 @@
       </div>
     </aside>
 
-    <!-- ============ MAIN ============ -->
     <main>
       <div class="topbar">
         <div class="search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-          <input type="text" id="topbarSearch" placeholder="Search collections..." onkeydown="if(event.key==='Enter') window.location.href='search.html?q='+encodeURIComponent(this.value)">
+          <input type="text" id="topbarSearch" placeholder="Search manuscripts..." onkeydown="if(event.key==='Enter') window.location.href='/search?q='+encodeURIComponent(this.value)">
         </div>
         <div class="topbar-right">
-          <div class="icon-btn" title="Notifications">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
-          </div>
-          <a href="settings.html" class="user-chip">
-            <div class="user-avatar">A</div>
-            <div class="user-name">Ankita</div>
+          <a href="/settings" class="user-chip">
+            <div class="user-avatar" id="userAvatar">A</div>
+            <div class="user-name" id="userName">User</div>
           </a>
         </div>
       </div>
 
       <div class="content">
-  <div class="page-head">
-    <div class="page-head-left">
-      <div class="eyebrow" id="detailScript"></div>
-      <h1 id="detailTitle"></h1>
-      <p id="detailDesc" class="detail-desc"></p>
-    </div>
-    <button class="btn-create" onclick="openManuscriptModal()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-      Add Manuscript
-    </button>
-  </div>
+        <div class="page-head">
+          <div class="page-head-left">
+            <div class="eyebrow" id="detailScript">📜 Collection</div>
+            <h1 id="detailTitle">Loading collection...</h1>
+            <p id="detailDesc" class="detail-desc"></p>
+          </div>
+          <button class="btn-create" onclick="openManuscriptModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            Add Manuscript
+          </button>
+        </div>
 
-  <div class="toolbar">
-    <div class="toolbar-count"><strong id="manuscriptCount"></strong> manuscripts</div>
-  </div>
+        <div class="toolbar">
+          <div class="toolbar-count"><strong id="manuscriptCount">0</strong> manuscripts in this collection</div>
+        </div>
 
-  <div class="grid" id="manuscriptGrid"></div>
-</div>
+        <div class="grid" id="manuscriptGrid"></div>
+      </div>
 
     </main>
   </div>
 
-  <div class="modal-overlay" id="createModal">
-  <div class="modal-card">
-    <div class="modal-head">
-      <div class="modal-ring">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg>
-      </div>
-      <div>
-        <h2>Create Collection</h2>
-        <p>Group manuscripts by script, region, or theme</p>
-      </div>
-      <button class="modal-close" onclick="closeCreateModal()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
-      </button>
-    </div>
-
-    <form onsubmit="return false;">
-      <div class="modal-field">
-        <label>Name</label>
-        <input type="text" placeholder="e.g. Odia Heritage Collection">
-      </div>
-      <div class="modal-field">
-        <label>Description</label>
-        <textarea rows="3" placeholder="What does this collection contain?"></textarea>
-      </div>
-      <div class="modal-field">
-        <label>Source / Institution</label>
-        <input type="text" placeholder="e.g. Odisha State Museum">
+  <!-- MANUSCRIPT CREATION MODAL -->
+  <div class="modal-overlay" id="manuscriptModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div class="modal-ring">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>
+        </div>
+        <div>
+          <h2>Create Manuscript</h2>
+          <p>Add a manuscript to this collection</p>
+        </div>
+        <button class="modal-close" onclick="closeManuscriptModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
       </div>
 
-      <div class="modal-actions">
-        <button type="button" class="btn-cancel" onclick="closeCreateModal()">Cancel</button>
-        <button type="submit" class="btn-create-submit">Create Collection</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<div class="modal-overlay" id="manuscriptModal">
-  <div class="modal-card">
-    <div class="modal-head">
-      <div class="modal-ring">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>
-      </div>
-      <div>
-        <h2>Create Manuscript</h2>
-        <p>Add a manuscript to this collection</p>
-      </div>
-      <button class="modal-close" onclick="closeManuscriptModal()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
-      </button>
-    </div>
-
-    <form onsubmit="return false;">
-      <div class="modal-field">
-        <label>Title</label>
-        <input type="text" placeholder="Sample Odia Historical Manuscript">
-      </div>
-      <div class="modal-field">
-        <label>Description</label>
-        <textarea rows="3" placeholder="What does this manuscript contain?"></textarea>
-      </div>
-      <div class="modal-row">
+      <form id="createManuscriptForm">
+        <div id="modalError" class="modal-error"></div>
         <div class="modal-field">
-          <label>Language</label>
-          <select><option>Odia</option><option>Sanskrit</option><option>Tamil</option><option>Marathi</option></select>
+          <label>Title</label>
+          <input type="text" id="manuTitle" placeholder="e.g. Ancient Bhagavata Purana" required>
         </div>
         <div class="modal-field">
-          <label>Script</label>
-          <select><option>Odia</option><option>Devanagari</option><option>Tamil</option><option>Grantha</option><option>Modi</option></select>
+          <label>Description</label>
+          <textarea id="manuDesc" rows="3" placeholder="What does this manuscript contain?"></textarea>
         </div>
-      </div>
-      <div class="modal-field">
-        <label>Author</label>
-        <input type="text" placeholder="Unknown">
-      </div>
-      <div class="modal-field">
-        <label>Approximate Date</label>
-        <input type="text" placeholder="19th century">
-      </div>
-      <div class="modal-field">
-        <label>Source</label>
-        <input type="text" placeholder="Sample Heritage Collection">
-      </div>
+        <div class="modal-row">
+          <div class="modal-field">
+            <label>Language</label>
+            <select id="manuLang">
+              <option value="Odia">Odia</option>
+              <option value="Sanskrit">Sanskrit</option>
+              <option value="Tamil">Tamil</option>
+              <option value="Marathi">Marathi</option>
+            </select>
+          </div>
+          <div class="modal-field">
+            <label>Script</label>
+            <select id="manuScript">
+              <option value="Odia">Odia</option>
+              <option value="Devanagari">Devanagari</option>
+              <option value="Tamil">Tamil</option>
+              <option value="Grantha">Grantha</option>
+              <option value="Modi">Modi</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-field">
+          <label>Author</label>
+          <input type="text" id="manuAuthor" placeholder="Unknown">
+        </div>
+        <div class="modal-field">
+          <label>Approximate Date</label>
+          <input type="text" id="manuDate" placeholder="e.g. 17th Century">
+        </div>
 
-      <div class="modal-actions">
-        <button type="button" class="btn-cancel" onclick="closeManuscriptModal()">Cancel</button>
-        <button type="submit" class="btn-create-submit">Create Manuscript</button>
-      </div>
-    </form>
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="closeManuscriptModal()">Cancel</button>
+          <button type="submit" class="btn-create-submit" id="manuSubmitBtn">Create Manuscript</button>
+        </div>
+      </form>
+    </div>
   </div>
-</div>
 
 <script>
+  // Floating Particles
   const field = document.getElementById('particles');
   const COUNT = 14;
   for (let i = 0; i < COUNT; i++) {
     const p = document.createElement('div');
     p.className = 'sp';
-    const size = (Math.random() * 2 + 1.2).toFixed(1);
-    const dur = (Math.random() * 12 + 16).toFixed(1);
-    const delay = (Math.random() * 16).toFixed(1);
-    const top = (Math.random() * 100).toFixed(1);
-    const left = (Math.random() * 100).toFixed(1);
-    const o = (Math.random() * 0.3 + 0.15).toFixed(2);
-    p.style.setProperty('--s', size + 'px');
-    p.style.setProperty('--dur', dur + 's');
-    p.style.setProperty('--delay', delay + 's');
-    p.style.setProperty('--top', top + '%');
-    p.style.setProperty('--left', left + '%');
-    p.style.setProperty('--o', o);
+    p.style.setProperty('--s', (Math.random() * 2 + 1.2).toFixed(1) + 'px');
+    p.style.setProperty('--dur', (Math.random() * 12 + 16).toFixed(1) + 's');
+    p.style.setProperty('--delay', (Math.random() * 16).toFixed(1) + 's');
+    p.style.setProperty('--top', (Math.random() * 100).toFixed(1) + '%');
+    p.style.setProperty('--left', (Math.random() * 100).toFixed(1) + '%');
+    p.style.setProperty('--o', (Math.random() * 0.3 + 0.15).toFixed(2));
     field.appendChild(p);
   }
 
-  function openCreateModal(){
-  document.getElementById('createModal').classList.add('open');
-}
-function closeCreateModal(){
-  document.getElementById('createModal').classList.remove('open');
-}
-const collectionsData = {
-  "odia-heritage": {
-    title: "Odia Heritage Collection",
-    script: "ଓ",
-    description: "Digitized manuscripts from temples and royal archives across Odisha.",
-    manuscripts: [
-      { title: "Sample Odia Manuscript", pages: 8, language: "Odia", script: "Odia" }
-    ]
-  },
-  "temple-records": {
-    title: "Temple Records",
-    script: "देव",
-    description: "Stone inscriptions and copper plate records from temple archives.",
-    manuscripts: [
-      { title: "Sample Temple Inscription", pages: 4, language: "Sanskrit", script: "Devanagari" }
-    ]
-  },
-  "historical-documents": {
-    title: "Historical Documents",
-    script: "அ",
-    description: "Colonial-era records and administrative papers from regional archives.",
-    manuscripts: [
-      { title: "Sample Historical Record", pages: 12, language: "Tamil", script: "Tamil" }
-    ]
-  },
-  "maratha-court-papers": {
-    title: "Maratha Court Papers",
-    script: "म",
-    description: "Court correspondence and administrative orders from the Maratha empire.",
-    manuscripts: [
-      { title: "Sample Court Paper", pages: 6, language: "Marathi", script: "Modi" }
-    ]
-  },
-  "tanjore-palm-leaves": {
-    title: "Tanjore Palm Leaves",
-    script: "த",
-    description: "Palm-leaf manuscripts preserved from the Tanjore royal library.",
-    manuscripts: [
-      { title: "Sample Palm Leaf Manuscript", pages: 10, language: "Tamil", script: "Grantha" }
-    ]
+  const params = new URLSearchParams(window.location.search);
+  const rawId = params.get('id');
+  const collectionId = rawId ? parseInt(rawId, 10) : null;
+
+  function getAuthHeaders() {
+    const token = localStorage.getItem('access_token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token && token !== 'undefined' && token !== 'null') {
+      headers['Authorization'] = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+    }
+    return headers;
   }
-};
 
-const params = new URLSearchParams(window.location.search);
-const data = collectionsData[params.get('id')];
-if (!data) {
-  document.querySelector('.content').innerHTML = '<p>Collection not found.</p>';
-  throw new Error('No collection found for id: ' + params.get('id'));
-}
+  function parseApiError(data) {
+    if (!data) return 'Error processing request.';
+    if (typeof data.detail === 'string') return data.detail;
+    if (Array.isArray(data.detail)) {
+      return data.detail.map(item => item.msg || item.message || JSON.stringify(item)).join(', ');
+    }
+    if (typeof data.detail === 'object' && data.detail !== null) {
+      return data.detail.msg || data.detail.message || JSON.stringify(data.detail);
+    }
+    return 'Failed to complete action.';
+  }
 
-document.getElementById('detailTitle').textContent = data.title;
-document.getElementById('detailScript').textContent = data.script;
-document.getElementById('detailDesc').textContent = data.description;
-document.getElementById('manuscriptCount').textContent = data.manuscripts.length;
+  function renderManuscripts(manuscripts = []) {
+    document.getElementById('manuscriptCount').textContent = manuscripts.length;
+    const grid = document.getElementById('manuscriptGrid');
+    grid.innerHTML = '';
 
-const grid = document.getElementById('manuscriptGrid');
-data.manuscripts.forEach(m => {
-  grid.innerHTML += `
-    <div class="coll-card">
-      <div class="coll-title">${m.title}</div>
-      <div class="coll-meta">
-        <div class="coll-meta-row">${m.pages} pages</div>
-        <div class="coll-meta-row">Language: ${m.language}</div>
-        <div class="coll-meta-row">Script: ${m.script}</div>
-      </div>
-      <div class="coll-divider"></div>
-      <button class="btn-open">Open</button>
-    </div>`;
-});
+    if (manuscripts.length === 0) {
+      grid.innerHTML = '<p style="color: var(--muted); font-size: 14px; grid-column: 1 / -1;">No manuscripts added yet. Click "Add Manuscript" above to create one.</p>';
+      return;
+    }
 
-function openManuscriptModal(){
-  document.getElementById('manuscriptModal').classList.add('open');
-}
-function closeManuscriptModal(){
-  document.getElementById('manuscriptModal').classList.remove('open');
-}
+    manuscripts.forEach(m => {
+      const card = document.createElement('div');
+      card.className = 'coll-card';
+      const pageCount = m.pages ? (Array.isArray(m.pages) ? m.pages.length : m.pages) : 0;
+      card.innerHTML = `
+        <div class="coll-title">${m.title || 'Untitled Manuscript'}</div>
+        <div class="coll-meta">
+          <div class="coll-meta-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:15px;height:15px;color:var(--gold);"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/></svg>
+            <strong>${pageCount}</strong>&nbsp;pages
+          </div>
+          <div class="coll-meta-row">Language: <strong>${m.language || 'Unknown'}</strong></div>
+          <div class="coll-meta-row">Script: <strong>${m.script || 'Unknown'}</strong></div>
+          ${m.approximate_date ? `<div class="coll-meta-row">Date: <strong>${m.approximate_date}</strong></div>` : ''}
+        </div>
+        <div class="coll-divider"></div>
+        <a href="/manuscript-detail?id=${m.id}" class="btn-open">
+          Open Manuscript
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M9 18l6-6-6-6"/></svg>
+        </a>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  async function loadCollectionDetail() {
+    if (!collectionId || isNaN(collectionId)) {
+      window.location.href = '/collections';
+      return;
+    }
+
+    const headers = getAuthHeaders();
+    try {
+      // 1. Fetch User Profile
+      const authRes = await fetch('/auth/me', { headers, credentials: 'include' });
+      if (authRes.ok) {
+        const user = await authRes.json();
+        const displayName = user.name || user.full_name || user.email || 'Scholar';
+        document.getElementById('userName').textContent = displayName;
+        document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
+      }
+
+      // 2. Fetch Collection Info (/api/collections/{id})
+      const collRes = await fetch(`/api/collections/${collectionId}`, {
+        headers,
+        credentials: 'include'
+      });
+
+      if (collRes.ok) {
+        const data = await collRes.json();
+        document.getElementById('detailTitle').textContent = data.name || data.title || 'Collection Details';
+        document.getElementById('detailDesc').textContent = data.description || '';
+      } else {
+        document.getElementById('detailTitle').textContent = 'Collection Not Found';
+      }
+
+      // 3. Fetch Manuscripts inside this collection (/api/collections/{id}/manuscripts)
+      const manuRes = await fetch(`/api/collections/${collectionId}/manuscripts`, {
+        headers,
+        credentials: 'include'
+      });
+
+      if (manuRes.ok) {
+        const manuscripts = await manuRes.json();
+        renderManuscripts(Array.isArray(manuscripts) ? manuscripts : []);
+      } else {
+        renderManuscripts([]);
+      }
+    } catch (e) {
+      console.warn('Error loading collection data:', e);
+      renderManuscripts([]);
+    }
+  }
+
+  function openManuscriptModal(){
+    document.getElementById('modalError').style.display = 'none';
+    document.getElementById('createManuscriptForm').reset();
+    document.getElementById('manuscriptModal').classList.add('open');
+  }
+
+  function closeManuscriptModal(){
+    document.getElementById('manuscriptModal').classList.remove('open');
+  }
+
+  // Handle Manuscript Creation
+  document.getElementById('createManuscriptForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorEl = document.getElementById('modalError');
+    const submitBtn = document.getElementById('manuSubmitBtn');
+
+    const title = document.getElementById('manuTitle').value.trim();
+    const description = document.getElementById('manuDesc').value.trim();
+    const language = document.getElementById('manuLang').value;
+    const script = document.getElementById('manuScript').value;
+    const author = document.getElementById('manuAuthor').value.trim() || null;
+    const approximate_date = document.getElementById('manuDate').value.trim() || null;
+
+    submitBtn.disabled = true;
+    errorEl.style.display = 'none';
+
+    try {
+      const payload = JSON.stringify({
+        title,
+        description,
+        language,
+        script,
+        author,
+        approximate_date
+      });
+
+      const response = await fetch(`/api/collections/${collectionId}/manuscripts`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        credentials: 'include',
+        body: payload
+      });
+
+      if (response.ok) {
+        closeManuscriptModal();
+        await loadCollectionDetail();
+      } else {
+        const data = await response.json();
+        errorEl.textContent = parseApiError(data);
+        errorEl.style.display = 'block';
+      }
+    } catch (err) {
+      errorEl.textContent = 'Server error. Please try again.';
+      errorEl.style.display = 'block';
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', loadCollectionDetail);
 </script>
-
-
 </body>
 </html>

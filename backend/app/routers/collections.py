@@ -1,3 +1,7 @@
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
 from app.core.auth import get_current_user
 from app.core.dependencies import get_db
 from app.models.collection import Collections
@@ -7,75 +11,67 @@ from app.schemas.collection import (
     CollectionResponse,
     CollectionUpdate,
 )
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
-from sqlalchemy.orm import Session
 
-router = APIRouter(prefix= "/Collections", tags=["Collections"])
+router = APIRouter(prefix="/collections", tags=["Collections"])
+
 
 @router.post(
     "",
-    response_model= CollectionResponse,
-    status_code= status.HTTP_201_CREATED,
+    response_model=CollectionResponse,
+    status_code=status.HTTP_201_CREATED,
 )
-
 def create_collection(
     data: CollectionCreate,
     current_user: User = Depends(get_current_user),
-    db:Session = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     collection = Collections(
-        name = data.name,
-        description = data.description,
-        owner_id = current_user.id,
+        name=data.name,
+        description=data.description,
+        owner_id=current_user.id,
     )
     db.add(collection)
     db.commit()
     db.refresh(collection)
-
     return collection
+
 
 @router.get(
     "",
-    response_model = list[CollectionResponse],
+    response_model=list[CollectionResponse],
 )
 def list_collections(
-    current_user : User = Depends (get_current_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    collections = db.scalars(
+    return db.scalars(
         select(Collections)
         .where(Collections.owner_id == current_user.id)
         .order_by(Collections.created_at.desc())
     ).all()
 
-    return collections
 
 @router.get(
     "/{collection_id}",
-    response_model = CollectionResponse,
+    response_model=CollectionResponse,
 )
 def get_collection(
-    collection_id :int,
+    collection_id: int,
     current_user: User = Depends(get_current_user),
-    db:Session = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
-    collection = db.scalar(
-        select(Collections).where(
-            Collections.id == collection_id,
-            Collections.owner_id == current_user.id,
-        )
-    )
+    collection = db.get(Collections, collection_id)
     if collection is None:
         raise HTTPException(
-            status_code= status.HTTP_404_NOT_FOUND,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Collection Not Found",
         )
     return collection
 
+
 @router.put(
     "/{collection_id}",
-    response_model = CollectionResponse,
+    response_model=CollectionResponse,
 )
 def update_collection(
     collection_id: int,
@@ -83,17 +79,18 @@ def update_collection(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    collection = db.scalar(
-        select(Collections).where(
-            Collections.id == collection_id,
-            Collections.owner_id == current_user.id,
-        )
-    )
+    collection = db.get(Collections, collection_id)
     if collection is None:
         raise HTTPException(
-            status_code = status.HTTP_404_NOT_FOUND,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Collection Not Found",
         )
+    if collection.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to edit this collection",
+        )
+
     if data.name is not None:
         collection.name = data.name
     if data.description is not None:
@@ -102,6 +99,7 @@ def update_collection(
     db.commit()
     db.refresh(collection)
     return collection
+
 
 @router.delete(
     "/{collection_id}",
@@ -112,17 +110,16 @@ def delete_collection(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    collection = db.scalar(
-        select(Collections).where(
-            Collections.id == collection_id,
-            Collections.owner_id == current_user.id,
-        )
-    )
-
+    collection = db.get(Collections, collection_id)
     if collection is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Collection not found",
+            detail="Collection Not Found",
+        )
+    if collection.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to delete this collection",
         )
 
     db.delete(collection)

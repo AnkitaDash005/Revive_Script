@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" href="LOGO.png" />
-<title>Revive Script — Collections</title>
+<link rel="icon" type="image/png" href="/static/LOGO.png" />
+<title>Revive Script — Manuscript Details</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -18,6 +18,7 @@
     --forest: #1f2e22;
     --forest-deep: #17231a;
     --muted: #6b7268;
+    --error: #b3261e;
   }
 
   *{box-sizing:border-box; margin:0; padding:0;}
@@ -45,7 +46,7 @@
     position:relative;
     background:
       linear-gradient(180deg, rgba(16,22,15,0.94) 0%, rgba(16,22,15,0.97) 60%, rgba(10,14,10,0.98) 100%),
-      url('Background.png');
+      url('/static/Background.png');
     background-size: cover;
     background-position: center 30%;
     color: #f4efe3;
@@ -185,14 +186,14 @@
   }
   .page-head-left .eyebrow{
     font-family:'Cormorant Garamond', serif; font-style:italic;
-    font-size:16px; color: var(--gold); margin-bottom:6px;
+    font-size:18px; color: var(--gold); margin-bottom:6px;
   }
   .page-head-left h1{
     font-family:'Playfair Display', serif; font-weight:700;
     font-size: clamp(26px, 3vw, 34px); color: var(--ink); letter-spacing:-0.01em;
   }
 
-    .btn-view-provenance{
+  .btn-view-provenance{
     display:flex; align-items:center; gap:8px;
     border:1.5px solid var(--forest); color:var(--forest);
     border-radius:12px; padding:12px 18px;
@@ -202,438 +203,231 @@
   }
   .btn-view-provenance svg{ width:15px; height:15px; }
   .btn-view-provenance:hover{ background:var(--forest); color:#f4efe3; }
-  .btn-create{
-    display:flex; align-items:center; gap:9px;
-    background: linear-gradient(180deg, #21301f, #17231a);
-    color: #f4efe3;
-    border:none;
-    border-radius: 12px;
-    padding: 13px 22px;
-    font-size: 14.5px;
-    font-weight:600;
-    letter-spacing:0.01em;
-    cursor:pointer;
+
+  .detail-desc{
+    font-size:13.5px;
+    color: var(--muted);
+    margin-top:8px;
+    max-width:680px;
+    line-height:1.5;
+  }
+
+  /* ================= MANUSCRIPT LAYOUT ================= */
+  .manuscript-layout{
+    display:grid;
+    grid-template-columns: 220px 1fr 240px;
+    gap:22px;
+    margin-top:26px;
+  }
+  .panel{
+    background: rgba(247,242,231,0.97);
+    border:1px solid rgba(0,0,0,0.06);
+    border-radius:16px;
+    padding:20px;
+    display:flex; flex-direction:column;
+  }
+  .panel-title{
+    font-family:'Playfair Display', serif; font-weight:700;
+    font-size:15px; color:var(--ink); margin-bottom:14px;
+  }
+  .page-list{ display:flex; flex-direction:column; gap:6px; flex:1; max-height:420px; overflow-y:auto; }
+  .page-list a{
+    padding:9px 12px; border-radius:8px; font-size:13.5px;
+    color:var(--muted); cursor:pointer; display:block;
+    transition: background .2s ease, color .2s ease;
+  }
+  .page-list a:hover, .page-list a.active{ background:rgba(179,144,63,0.12); color:var(--ink); font-weight:600; }
+
+  .btn-upload{
+    display:flex; align-items:center; justify-content:center; gap:7px;
+    border:1.5px dashed rgba(179,144,63,0.4); background:none;
+    border-radius:10px; padding:10px; margin-top:12px;
+    font-size:13px; font-weight:600; color:var(--gold); cursor:pointer;
+    transition: border-color .2s ease, background .2s ease;
+  }
+  .btn-upload svg{ width:14px; height:14px; }
+  .btn-upload:hover{
+    border-color: var(--gold);
+    background: rgba(179,144,63,0.06);
+  }
+
+  .panel-image{
+    align-items:center; justify-content:center;
+    padding:0; overflow:hidden; min-height:440px;
     position:relative;
-    overflow:hidden;
-    flex:none;
+  }
+  .manuscript-frame{
+    width:100%; height:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:10px; color:var(--muted);
+    background: repeating-linear-gradient(45deg, rgba(179,144,63,0.04) 0 10px, transparent 10px 20px);
+  }
+  .manuscript-frame img{
+    width:100%; height:100%; object-fit:contain;
+  }
+  .manuscript-frame svg{ width:34px; height:34px; color: var(--gold); }
+  .manuscript-frame span{ font-size:13px; }
+
+  .ai-list{ display:flex; flex-direction:column; gap:12px; flex:1; }
+  .ai-row{ display:flex; align-items:center; justify-content:space-between; font-size:13.5px; color:var(--ink); }
+  .ai-status{ width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; flex:none; }
+  .ai-status.done{ background:rgba(31,46,34,0.12); color:var(--forest); font-weight:bold; }
+  .ai-status.pending{ background:rgba(179,144,63,0.15); color:var(--gold); }
+  .ai-status.waiting{ border:1.5px solid rgba(0,0,0,0.12); color:transparent; }
+
+  .btn-run-ai{
+    background: linear-gradient(180deg, #21301f, #17231a); color:#f4efe3;
+    border:none; border-radius:11px; padding:12px; margin-top:16px;
+    font-size:13.5px; font-weight:600; cursor:pointer;
     transition: transform .2s ease, box-shadow .2s ease;
   }
-  .btn-create svg{ width:16px; height:16px; color: var(--gold-soft); }
-  .btn-create:hover{ transform: translateY(-1px); box-shadow: 0 10px 24px rgba(23,35,26,0.35); }
-  .btn-create::after{
-    content:""; position:absolute; top:0; left:-60%; width:40%; height:100%;
-    background: linear-gradient(115deg, transparent, rgba(255,255,255,0.15), transparent);
-    transform: skewX(-20deg); transition: left .6s ease;
+  .btn-run-ai:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(23,35,26,0.35);
   }
-  .btn-create:hover::after{ left: 130%; }
 
+  /* ================= MODALS ================= */
   .modal-overlay{
-  position:fixed; inset:0; z-index:50;
-  background: rgba(16,22,15,0.55);
-  backdrop-filter: blur(4px);
-  display:none; align-items:center; justify-content:center;
-  padding:20px;
-}
-.modal-overlay.open{ display:flex; }
-
-.modal-card{
-  width:100%; max-width:460px;
-  background: var(--parchment);
-  border-radius:18px;
-  border:1px solid rgba(0,0,0,0.06);
-  box-shadow: 0 30px 70px rgba(0,0,0,0.35);
-  padding: 30px 32px 28px 32px;
-  position:relative;
-}
-
-.modal-head{ display:flex; align-items:flex-start; gap:14px; margin-bottom:22px; }
-.modal-ring{
-  width:44px; height:44px; flex:none;
-  border-radius:50%; border:1.5px solid var(--gold);
-  display:flex; align-items:center; justify-content:center;
-}
-.modal-ring svg{ width:20px; height:20px; color:var(--forest); }
-.modal-head h2{ font-family:'Playfair Display', serif; font-size:20px; color:var(--ink); }
-.modal-head p{ font-size:12.5px; color:var(--muted); margin-top:3px; }
-.modal-close{
-  margin-left:auto; background:none; border:none; cursor:pointer;
-  color:var(--muted); width:28px; height:28px;
-}
-.modal-close svg{ width:16px; height:16px; }
-
-.modal-field{ margin-bottom:16px; }
-.modal-field label{
-  display:block; font-size:12.5px; font-weight:600;
-  color:var(--ink); margin-bottom:6px;
-}
-.modal-field input, .modal-field textarea, .modal-field select{
-  width:100%; background:#efe8d8; border:1px solid rgba(0,0,0,0.06);
-  border-radius:10px; padding:12px 14px; font-family:'Inter',sans-serif;
-  font-size:14px; color:var(--ink); outline:none; resize:vertical;
-  transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
-}
-.modal-field input:focus, .modal-field textarea:focus{
-  background:#fff; border-color:var(--gold); box-shadow:0 0 0 3px rgba(179,144,63,0.12);
-}
-
-.dropzone{
-  border: 1.5px dashed rgba(179,144,63,0.4);
-  border-radius: 14px;
-  padding: 30px 20px;
-  display:flex; flex-direction:column; align-items:center; gap:10px;
-  text-align:center;
-  cursor:pointer;
-  background: rgba(179,144,63,0.03);
-  transition: border-color .2s ease, background .2s ease;
-}
-.dropzone:hover, .dropzone.dragover{
-  border-color: var(--gold);
-  background: rgba(179,144,63,0.07);
-}
-.dropzone svg{ width:26px; height:26px; color: var(--gold); }
-.dropzone span{ font-size:13.5px; color: var(--muted); }
-.btn-choose-file{
-  margin-top:6px;
-  background: transparent;
-  border: 1.5px solid var(--forest);
-  color: var(--forest);
-  border-radius: 10px;
-  padding: 9px 16px;
-  font-size: 13px; font-weight:600;
-  cursor:pointer;
-  transition: background .25s ease, color .25s ease;
-}
-.btn-choose-file:hover{ background: var(--forest); color:#f4efe3; }
-.dropzone-hint{
-  font-size:12px; color: var(--muted); margin-top:8px; text-align:center;
-}
-
-.modal-actions{ display:flex; justify-content:flex-end; gap:12px; margin-top:22px; }
-.btn-cancel{
-  background:none; border:1.5px solid rgba(0,0,0,0.12); color:var(--ink);
-  border-radius:11px; padding:11px 18px; font-size:14px; font-weight:600; cursor:pointer;
-}
-.btn-create-submit{
-  background: linear-gradient(180deg, #21301f, #17231a); color:#f4efe3;
-  border:none; border-radius:11px; padding:11px 20px; font-size:14px;
-  font-weight:600; cursor:pointer;
-}
-
-  .toolbar{
-    display:flex; align-items:center; justify-content:space-between;
-    margin: 26px 0 22px 0;
-    padding-bottom: 14px;
-    border-bottom: 1px solid rgba(0,0,0,0.08);
+    position:fixed; inset:0; z-index:50;
+    background: rgba(16,22,15,0.55);
+    backdrop-filter: blur(4px);
+    display:none; align-items:center; justify-content:center;
+    padding:20px;
   }
-  .toolbar-count{ font-size:13px; color: var(--muted); }
-  .toolbar-count strong{ color: var(--ink); font-weight:600; }
-  .sort{
-    display:flex; align-items:center; gap:8px;
-    font-size:13px; color: var(--muted); cursor:pointer;
-  }
-  .sort svg{ width:14px; height:14px; }
+  .modal-overlay.open{ display:flex; }
 
-  .modal-row{ display:flex; gap:14px; }
-.modal-row .modal-field{ flex:1; }
-.modal-field select{ cursor:pointer; appearance:none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7268' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position: right 12px center; background-size:14px; }
-
-
-.ai-progress-card{ max-width:420px; }
-.ai-steps{ display:flex; flex-direction:column; gap:12px; margin: 20px 0 22px 0; }
-.ai-step{
-  display:flex; align-items:center; justify-content:space-between;
-  font-size:13.5px; color: var(--muted);
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
-  transition: color .3s ease;
-}
-.ai-step:last-child{ border-bottom:none; }
-.ai-step.active{ color: var(--ink); font-weight:600; }
-.ai-step-icon{
-  width:20px; height:20px; border-radius:50%; flex:none;
-  display:flex; align-items:center; justify-content:center;
-  font-size:11px; border:1.5px solid rgba(0,0,0,0.12); color:transparent;
-  transition: all .3s ease;
-}
-.ai-step-icon.done{ background:rgba(31,46,34,0.12); border-color:transparent; color:var(--forest); }
-.ai-step-icon.running{ background:rgba(179,144,63,0.15); border-color:transparent; color:var(--gold); }
-
-.ai-progress-bar{
-  height:6px; border-radius:999px; background:rgba(0,0,0,0.07);
-  overflow:hidden; margin-bottom:8px;
-}
-.ai-progress-fill{
-  height:100%; width:0%;
-  background: linear-gradient(90deg, var(--gold-soft), var(--gold));
-  transition: width .4s ease;
-}
-.ai-progress-percent{
-  text-align:center; font-size:13px; font-weight:600; color:var(--ink); margin-bottom:6px;
-}
-  /* ---- collection grid ---- */
-  .grid{
-    display:grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-  }
-
-  .coll-card{
+  .modal-card{
+    width:100%; max-width:460px;
+    background: var(--parchment);
+    border-radius:18px;
+    border:1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 30px 70px rgba(0,0,0,0.35);
+    padding: 30px 32px 28px 32px;
     position:relative;
-    background: rgba(247,242,231,0.97);
-    border: 1px solid rgba(0,0,0,0.06);
-    border-radius: 18px;
-    padding: 26px 26px 22px 26px;
-    box-shadow: 0 12px 28px rgba(23,35,26,0.06);
-    display:flex; flex-direction:column;
-    transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
-    overflow:hidden;
-  }
-  .coll-card::before{
-    content:"";
-    position:absolute; top:0; left:0; right:0; height:3px;
-    background: linear-gradient(90deg, var(--gold-soft), var(--gold), var(--gold-soft));
-  }
-  .coll-card:hover{
-    transform: translateY(-5px);
-    box-shadow: 0 22px 40px rgba(23,35,26,0.12);
-    border-color: rgba(179,144,63,0.3);
   }
 
-  .coll-top{ display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:18px; }
-  .coll-ring{
-    width:50px; height:50px;
-    border-radius: 50%;
-    border: 1.5px solid var(--gold);
+  .modal-head{ display:flex; align-items:flex-start; gap:14px; margin-bottom:22px; }
+  .modal-ring{
+    width:44px; height:44px; flex:none;
+    border-radius:50%; border:1.5px solid var(--gold);
     display:flex; align-items:center; justify-content:center;
-    position:relative;
-    flex:none;
   }
-  .coll-ring::after{
-    content:""; position:absolute; inset:-5px; border-radius:50%;
-    border: 1px solid rgba(179,144,63,0.25);
+  .modal-ring svg{ width:20px; height:20px; color:var(--forest); }
+  .modal-head h2{ font-family:'Playfair Display', serif; font-size:20px; color:var(--ink); }
+  .modal-head p{ font-size:12.5px; color:var(--muted); margin-top:3px; }
+  .modal-close{
+    margin-left:auto; background:none; border:none; cursor:pointer;
+    color:var(--muted); width:28px; height:28px;
   }
-  .coll-ring svg{ width:22px; height:22px; color: var(--forest); }
+  .modal-close svg{ width:16px; height:16px; }
 
-  .coll-script{
-    font-family:'Cormorant Garamond', serif;
-    font-weight:600;
-    font-size:26px;
-    color: rgba(179,144,63,0.35);
-    line-height:1;
+  .modal-field{ margin-bottom:16px; }
+  .modal-field label{
+    display:block; font-size:12.5px; font-weight:600;
+    color:var(--ink); margin-bottom:6px;
+  }
+  .modal-field input{
+    width:100%; background:#efe8d8; border:1px solid rgba(0,0,0,0.06);
+    border-radius:10px; padding:12px 14px; font-family:'Inter',sans-serif;
+    font-size:14px; color:var(--ink); outline:none;
+    transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+  }
+  .modal-field input:focus{
+    background:#fff; border-color:var(--gold); box-shadow:0 0 0 3px rgba(179,144,63,0.12);
   }
 
-  .coll-title{
-    font-family:'Playfair Display', serif;
-    font-weight:700;
-    font-size:19px;
-    color: var(--ink);
-    margin-bottom: 14px;
-    line-height:1.25;
+  .dropzone{
+    border: 1.5px dashed rgba(179,144,63,0.4);
+    border-radius: 14px;
+    padding: 24px 20px;
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+    text-align:center;
+    cursor:pointer;
+    background: rgba(179,144,63,0.03);
+    transition: border-color .2s ease, background .2s ease;
   }
-
-  .coll-meta{ display:flex; flex-direction:column; gap:9px; margin-bottom:22px; }
-  .coll-meta-row{
-    display:flex; align-items:center; gap:9px;
-    font-size:13px; color: var(--muted);
+  .dropzone:hover, .dropzone.dragover{
+    border-color: var(--gold);
+    background: rgba(179,144,63,0.07);
   }
-  .coll-meta-row svg{ width:15px; height:15px; color: var(--gold); flex:none; }
-  .coll-meta-row strong{ color: var(--ink); font-weight:600; }
-
-  .coll-divider{ height:1px; background: rgba(0,0,0,0.07); margin: 0 0 18px 0; }
-
-  .manuscript-layout{
-  display:grid;
-  grid-template-columns: 220px 1fr 240px;
-  gap:22px;
-  margin-top:26px;
-}
-.panel{
-  background: rgba(247,242,231,0.97);
-  border:1px solid rgba(0,0,0,0.06);
-  border-radius:16px;
-  padding:20px;
-  display:flex; flex-direction:column;
-}
-.panel-title{
-  font-family:'Playfair Display', serif; font-weight:700;
-  font-size:15px; color:var(--ink); margin-bottom:14px;
-}
-.page-list{ display:flex; flex-direction:column; gap:6px; flex:1; }
-.page-list div , .page-list a{
-  padding:9px 12px; border-radius:8px; font-size:13.5px;
-  color:var(--muted); cursor:pointer;
-}
-.page-list div:hover , .page-list a:hover{ background:rgba(179,144,63,0.08); color:var(--ink); }
-
-.btn-upload{
-  display:flex; align-items:center; justify-content:center; gap:7px;
-  border:1.5px dashed rgba(179,144,63,0.4); background:none;
-  border-radius:10px; padding:10px; margin-top:12px;
-  font-size:13px; font-weight:600; color:var(--gold); cursor:pointer;
-  transition: border-color .2s ease, background .2s ease;
-}
-.btn-upload svg{ width:14px; height:14px; }
-
-.btn-upload:hover{
-  border-color: var(--gold);
-  background: rgba(179,144,63,0.06);
-}
-
-.panel-image{ align-items:center; justify-content:center; padding:0; overflow:hidden; }
-.manuscript-frame{
-  width:100%; height:100%; min-height:360px;
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:10px; color:var(--muted);
-  background: repeating-linear-gradient(45deg, rgba(179,144,63,0.04) 0 10px, transparent 10px 20px);
-}
-.manuscript-frame svg{ width:34px; height:34px; color: var(--gold); }
-.manuscript-frame span{ font-size:13px; }
-
-.ai-list{ display:flex; flex-direction:column; gap:12px; flex:1; }
-.ai-row{ display:flex; align-items:center; justify-content:space-between; font-size:13.5px; color:var(--ink); }
-.ai-status{ width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; flex:none; }
-.ai-status.done{ background:rgba(31,46,34,0.12); color:var(--forest); }
-.ai-status.pending{ background:rgba(179,144,63,0.15); color:var(--gold); }
-.ai-status.waiting{ border:1.5px solid rgba(0,0,0,0.12); color:transparent; }
-.btn-run-ai{
-  background: linear-gradient(180deg, #21301f, #17231a); color:#f4efe3;
-  border:none; border-radius:11px; padding:12px; margin-top:16px;
-  font-size:13.5px; font-weight:600; cursor:pointer;
-  transition: transform .2s ease, box-shadow .2s ease;
-}
-.btn-run-ai:hover{
-  transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(23,35,26,0.35);
-}
-
-.page-editor{
-  display:none;
-  margin-top:22px;
-  background: rgba(247,242,231,0.97);
-  border:1px solid rgba(0,0,0,0.06);
-  border-radius:16px;
-  padding:24px;
-}
-.page-editor.open{ display:block; }
-
-.page-editor-head{
-  display:flex; align-items:center; justify-content:space-between;
-  margin-bottom:20px; padding-bottom:16px;
-  border-bottom:1px solid rgba(0,0,0,0.08);
-}
-.page-editor-head h3{
-  font-family:'Playfair Display', serif; font-size:18px; color:var(--ink);
-}
-.page-editor-actions{ display:flex; gap:10px; }
-.btn-editor-action{
-  background: linear-gradient(180deg, #21301f, #17231a);
-  color:#f4efe3; border:none; border-radius:9px;
-  padding:9px 16px; font-size:13px; font-weight:600; cursor:pointer;
-  transition: transform .2s ease, box-shadow .2s ease;
-}
-.btn-editor-action:hover{ transform: translateY(-1px); box-shadow: 0 8px 18px rgba(23,35,26,0.3); }
-.btn-editor-ghost{
-  background:none; border:1.5px solid rgba(0,0,0,0.12); color:var(--ink);
-}
-
-.editor-cols{
-  display:grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap:20px;
-}
-.editor-col-label{
-  font-size:11.5px; letter-spacing:0.08em; text-transform:uppercase;
-  color: var(--gold); font-weight:600; margin-bottom:10px;
-}
-.editor-image{
-  aspect-ratio: 3/4;
-  border-radius:12px;
-  background: repeating-linear-gradient(45deg, rgba(179,144,63,0.04) 0 10px, transparent 10px 20px);
-  border:1px solid rgba(0,0,0,0.06);
-  display:flex; align-items:center; justify-content:center;
-  color: var(--gold);
-}
-.editor-image svg{ width:30px; height:30px; }
-.editor-text{
-  min-height:160px;
-  background:#efe8d8;
-  border:1px solid rgba(0,0,0,0.06);
-  border-radius:12px;
-  padding:14px;
-  font-size:14px; line-height:1.6; color:var(--ink);
-  font-family:'Cormorant Garamond', serif;
-}
-.editor-confidence{
-  margin-top:10px; font-size:12px; color: var(--muted);
-}
-@media (max-width: 980px){
-  .editor-cols{ grid-template-columns:1fr; }
-}
-
-  .btn-open{
-    display:flex; align-items:center; justify-content:center; gap:8px;
+  .dropzone svg{ width:26px; height:26px; color: var(--gold); }
+  .dropzone span{ font-size:13.5px; color: var(--muted); }
+  .btn-choose-file{
+    margin-top:4px;
     background: transparent;
     border: 1.5px solid var(--forest);
     color: var(--forest);
-    border-radius: 11px;
-    padding: 12px;
-    font-size: 13.5px;
-    font-weight:600;
-    letter-spacing:0.01em;
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-size: 13px; font-weight:600;
     cursor:pointer;
-    transition: background .25s ease, color .25s ease, transform .2s ease;
-    margin-top:auto;
+    transition: background .25s ease, color .25s ease;
   }
-  .btn-open svg{ width:14px; height:14px; transition: transform .2s ease; }
-  .btn-open:hover{ background: var(--forest); color:#f4efe3; transform: translateY(-1px); }
-  .btn-open:hover svg{ transform: translateX(3px); }
-
-  .detail-desc{
-  font-size:13.5px;
-  color: var(--muted);
-  margin-top:8px;
-  max-width:520px;
-}
-
-  /* ---- empty / create card ---- */
-  .coll-card.new{
-    align-items:center; justify-content:center;
-    text-align:center;
-    border: 1.5px dashed rgba(179,144,63,0.4);
-    background: rgba(179,144,63,0.03);
-    box-shadow:none;
-    cursor:pointer;
-    min-height: 100%;
+  .btn-choose-file:hover{ background: var(--forest); color:#f4efe3; }
+  .dropzone-hint{
+    font-size:12px; color: var(--muted); margin-top:8px; text-align:center;
   }
-  .coll-card.new::before{ display:none; }
-  .coll-card.new:hover{ border-color: var(--gold); background: rgba(179,144,63,0.07); box-shadow:none; }
-  .new-icon{
-    width:52px; height:52px;
-    border-radius:50%;
-    border: 1.5px solid var(--gold);
+
+  .modal-error{
+    color: var(--error);
+    font-size: 13px;
+    margin-bottom: 12px;
+    display: none;
+  }
+
+  .modal-actions{ display:flex; justify-content:flex-end; gap:12px; margin-top:22px; }
+  .btn-cancel{
+    background:none; border:1.5px solid rgba(0,0,0,0.12); color:var(--ink);
+    border-radius:11px; padding:11px 18px; font-size:14px; font-weight:600; cursor:pointer;
+  }
+  .btn-create-submit{
+    background: linear-gradient(180deg, #21301f, #17231a); color:#f4efe3;
+    border:none; border-radius:11px; padding:11px 20px; font-size:14px;
+    font-weight:600; cursor:pointer;
+  }
+
+  /* Progress Modal */
+  .ai-progress-card{ max-width:420px; }
+  .ai-steps{ display:flex; flex-direction:column; gap:12px; margin: 20px 0 22px 0; }
+  .ai-step{
+    display:flex; align-items:center; justify-content:space-between;
+    font-size:13.5px; color: var(--muted);
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    transition: color .3s ease;
+  }
+  .ai-step:last-child{ border-bottom:none; }
+  .ai-step.active{ color: var(--ink); font-weight:600; }
+  .ai-step-icon{
+    width:20px; height:20px; border-radius:50%; flex:none;
     display:flex; align-items:center; justify-content:center;
-    margin: 6px auto 16px auto;
+    font-size:11px; border:1.5px solid rgba(0,0,0,0.12); color:transparent;
+    transition: all .3s ease;
   }
-  .new-icon svg{ width:22px; height:22px; color: var(--gold); }
-  .coll-card.new h3{
-    font-family:'Playfair Display', serif; font-weight:600; font-size:17px;
-    color: var(--ink); margin-bottom:6px;
+  .ai-step-icon.done{ background:rgba(31,46,34,0.12); border-color:transparent; color:var(--forest); font-weight:bold; }
+  .ai-step-icon.running{ background:rgba(179,144,63,0.15); border-color:transparent; color:var(--gold); }
+
+  .ai-progress-bar{
+    height:6px; border-radius:999px; background:rgba(0,0,0,0.07);
+    overflow:hidden; margin-bottom:8px;
   }
-  .coll-card.new p{ font-size:12.5px; color: var(--muted); max-width:200px; margin: 0 auto; line-height:1.5; }
+  .ai-progress-fill{
+    height:100%; width:0%;
+    background: linear-gradient(90deg, var(--gold-soft), var(--gold));
+    transition: width .4s ease;
+  }
+  .ai-progress-percent{
+    text-align:center; font-size:13px; font-weight:600; color:var(--ink); margin-bottom:6px;
+  }
 
   /* ================= RESPONSIVE ================= */
-  @media (max-width: 1080px){
-    .grid{ grid-template-columns: repeat(2, 1fr); }
-  }
   @media (max-width: 980px){
     .app{ grid-template-columns: 1fr; }
     .sidebar{ display:none; }
     .content{ padding: 28px 20px 50px 20px; }
     .topbar{ padding: 18px 20px; }
+    .manuscript-layout{ grid-template-columns: 1fr; }
     .page-head{ flex-direction:column; align-items:flex-start; gap:16px; }
-  }
-  @media (max-width: 620px){
-    .grid{ grid-template-columns: 1fr; }
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -650,39 +444,39 @@
       <div class="sidebar-particles" id="particles"></div>
 
       <div class="brand">
-        <div class="brand-mark"><img src="LOGO.png" alt="Revive Script"></div>
+        <div class="brand-mark"><img src="/static/LOGO.png" alt="Revive Script"></div>
         <div class="brand-name">Revive Script<em>Restore. Reconstruct. Preserve.</em></div>
       </div>
 
       <nav>
-        <a href="dashboard.html" class="nav-item">
+        <a href="/dashboard" class="nav-item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
           Dashboard
         </a>
-        <a href="collections.html" class="nav-item">
+        <a href="/collections" class="nav-item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg>
           Collections
         </a>
-        <a href="manuscripts.html" class="nav-item active">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>
-            Manuscripts
+        <a href="/manuscripts" class="nav-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>
+          Manuscripts
         </a>
-        <div class="nav-item">
+        <a href="/reconstruction-detail" class="nav-item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></svg>
           AI Jobs
-        </div>
-        <a href="search.html" class="nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-            Search
         </a>
-        <a href="provenance.html" class="nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
-            Provenance
+        <a href="/search" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          Search
+        </a>
+        <a href="/provenance" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+          Provenance
         </a>
 
         <div class="nav-label">System</div>
-        <a href="settings.html" class="nav-item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <a href="/settings" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           Settings
         </a>
       </nav>
@@ -698,289 +492,412 @@
       <div class="topbar">
         <div class="search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-          <input type="text" id="topbarSearch" placeholder="Search collections..." onkeydown="if(event.key==='Enter') window.location.href='search.html?q='+encodeURIComponent(this.value)">
+          <input type="text" id="topbarSearch" placeholder="Search manuscripts..." onkeydown="if(event.key==='Enter') window.location.href='/search?q='+encodeURIComponent(this.value)">
         </div>
         <div class="topbar-right">
           <div class="icon-btn" title="Notifications">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
           </div>
-          <a href="settings.html" class="user-chip">
-            <div class="user-avatar">A</div>
-            <div class="user-name">Ankita</div>
+          <a href="/settings" class="user-chip">
+            <div class="user-avatar" id="userAvatar">A</div>
+            <div class="user-name" id="userName">User</div>
           </a>
         </div>
       </div>
 
       <div class="content">
-  <div class="page-head">
-    <div class="page-head-left">
-      <div class="eyebrow" id="mScript"></div>
-      <h1 id="mTitle"></h1>
-      <p class="detail-desc" id="mMeta"></p>
-    </div>
-    <a class="btn-view-provenance" id="provenanceLink" href="#">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
-      View Provenance
-    </a>
-  </div>
+        <div class="page-head">
+          <div class="page-head-left">
+            <div class="eyebrow" id="mScript">Manuscript</div>
+            <h1 id="mTitle">Loading manuscript...</h1>
+            <p class="detail-desc" id="mMeta"></p>
+          </div>
+          <a class="btn-view-provenance" id="provenanceLink" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+            View Provenance
+          </a>
+        </div>
 
-  <div class="manuscript-layout">
-    <div class="panel">
-      <div class="panel-title">Pages</div>
-      <div class="page-list" id="pageList"></div>
-      <button class="btn-upload" onclick="openPageUploadModal()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-        Upload
-      </button>
-    </div>
+        <div class="manuscript-layout">
+          <!-- Page list panel -->
+          <div class="panel">
+            <div class="panel-title">Pages</div>
+            <div class="page-list" id="pageList"></div>
+            <button class="btn-upload" onclick="openPageUploadModal()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+              Upload Page
+            </button>
+          </div>
 
-    <div class="panel panel-image">
-      <div class="manuscript-frame">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/></svg>
-        <span>Manuscript Image</span>
+          <!-- Central page preview panel -->
+          <div class="panel panel-image">
+            <div class="manuscript-frame" id="manuscriptFrame">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/></svg>
+              <span>Select or upload a page to preview</span>
+            </div>
+          </div>
+
+          <!-- AI tasks panel -->
+          <div class="panel">
+            <div class="panel-title">AI Processing</div>
+            <div class="ai-list" id="aiList">
+              <div class="ai-row">Pre-processing <span class="ai-status done">✓</span></div>
+              <div class="ai-row">Script Detection <span class="ai-status done">✓</span></div>
+              <div class="ai-row">OCR Engine <span class="ai-status pending">⏳</span></div>
+              <div class="ai-row">RAG Context <span class="ai-status waiting"></span></div>
+              <div class="ai-row">Reconstruction <span class="ai-status waiting"></span></div>
+            </div>
+            <button class="btn-run-ai" onclick="startAiProcessing()">Run Full Pipeline</button>
+          </div>
+        </div>
       </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-title">AI Processing</div>
-      <div class="ai-list" id="aiList"></div>
-      <button class="btn-run-ai" onclick="startAiProcessing()">Run AI</button>
-    </div>
-  </div>
-  
-</div>
-
     </main>
   </div>
-<div class="modal-overlay" id="pageUploadModal">
-  <div class="modal-card">
-    <div class="modal-head">
-      <div class="modal-ring">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 21h14"/></svg>
-      </div>
-      <div>
-        <h2>Upload Manuscript Page</h2>
-        <p>Add a scanned page image</p>
-      </div>
-      <button class="modal-close" onclick="closePageUploadModal()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
-      </button>
-    </div>
 
-    <form onsubmit="return false;">
-      <div class="modal-field">
-        <label>Page Number</label>
-        <input type="text" id="pageNumberInput" placeholder="1">
-      </div>
-
-      <div class="modal-field">
-        <label>Upload Image</label>
-        <div class="dropzone" id="dropzone" onclick="document.getElementById('pageFileInput').click()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 21h14"/></svg>
-          <span>Drag &amp; Drop Image</span>
-          <button type="button" class="btn-choose-file" onclick="event.stopPropagation(); document.getElementById('pageFileInput').click()">Choose File</button>
-          <input type="file" id="pageFileInput" accept=".png,.jpg,.jpeg" hidden>
+  <!-- UPLOAD PAGE MODAL -->
+  <div class="modal-overlay" id="pageUploadModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div class="modal-ring">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 21h14"/></svg>
         </div>
-        <div class="dropzone-hint">Supported: PNG / JPG / JPEG</div>
+        <div>
+          <h2>Upload Manuscript Page</h2>
+          <p>Add a scanned page image</p>
+        </div>
+        <button class="modal-close" onclick="closePageUploadModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
       </div>
+
+      <form id="uploadPageForm">
+        <div id="uploadError" class="modal-error"></div>
+        <div class="modal-field">
+          <label>Page Number</label>
+          <input type="number" id="pageNumberInput" min="1" placeholder="1" required>
+        </div>
+
+        <div class="modal-field">
+          <label>Upload Image</label>
+          <div class="dropzone" id="dropzone" onclick="document.getElementById('pageFileInput').click()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 21h14"/></svg>
+            <span id="dropzoneText">Drag &amp; Drop Image here</span>
+            <button type="button" class="btn-choose-file" onclick="event.stopPropagation(); document.getElementById('pageFileInput').click()">Choose File</button>
+            <input type="file" id="pageFileInput" accept=".png,.jpg,.jpeg" hidden required>
+          </div>
+          <div class="dropzone-hint">Supported: PNG / JPG / JPEG</div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="closePageUploadModal()">Cancel</button>
+          <button type="submit" class="btn-create-submit" id="uploadSubmitBtn">Upload Page</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- AI PIPELINE PROGRESS MODAL -->
+  <div class="modal-overlay" id="aiProgressModal">
+    <div class="modal-card ai-progress-card">
+      <div class="modal-head">
+        <div class="modal-ring">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></svg>
+        </div>
+        <div>
+          <h2>AI Processing</h2>
+          <p>Running the preservation pipeline</p>
+        </div>
+      </div>
+
+      <div class="ai-steps" id="aiSteps"></div>
+
+      <div class="ai-progress-bar">
+        <div class="ai-progress-fill" id="aiProgressFill"></div>
+      </div>
+      <div class="ai-progress-percent" id="aiProgressPercent">0%</div>
 
       <div class="modal-actions">
-        <button type="button" class="btn-cancel" onclick="closePageUploadModal()">Cancel</button>
-        <button type="submit" class="btn-create-submit">Upload Page</button>
+        <button type="button" class="btn-cancel" onclick="cancelAiProgress()">Cancel</button>
       </div>
-    </form>
-  </div>
-</div>
-
-<div class="modal-overlay" id="aiProgressModal">
-  <div class="modal-card ai-progress-card">
-    <div class="modal-head">
-      <div class="modal-ring">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></svg>
-      </div>
-      <div>
-        <h2>AI Processing</h2>
-        <p>Running the pipeline on this manuscript</p>
-      </div>
-    </div>
-
-    <div class="ai-steps" id="aiSteps"></div>
-
-    <div class="ai-progress-bar">
-      <div class="ai-progress-fill" id="aiProgressFill"></div>
-    </div>
-    <div class="ai-progress-percent" id="aiProgressPercent">0%</div>
-
-    <div class="modal-actions">
-      <button type="button" class="btn-cancel" onclick="cancelAiProgress()">Cancel</button>
     </div>
   </div>
-</div>
-
 <script>
+  // Particles Background
   const field = document.getElementById('particles');
   const COUNT = 14;
   for (let i = 0; i < COUNT; i++) {
     const p = document.createElement('div');
     p.className = 'sp';
-    const size = (Math.random() * 2 + 1.2).toFixed(1);
-    const dur = (Math.random() * 12 + 16).toFixed(1);
-    const delay = (Math.random() * 16).toFixed(1);
-    const top = (Math.random() * 100).toFixed(1);
-    const left = (Math.random() * 100).toFixed(1);
-    const o = (Math.random() * 0.3 + 0.15).toFixed(2);
-    p.style.setProperty('--s', size + 'px');
-    p.style.setProperty('--dur', dur + 's');
-    p.style.setProperty('--delay', delay + 's');
-    p.style.setProperty('--top', top + '%');
-    p.style.setProperty('--left', left + '%');
-    p.style.setProperty('--o', o);
+    p.style.setProperty('--s', (Math.random() * 2 + 1.2).toFixed(1) + 'px');
+    p.style.setProperty('--dur', (Math.random() * 12 + 16).toFixed(1) + 's');
+    p.style.setProperty('--delay', (Math.random() * 16).toFixed(1) + 's');
+    p.style.setProperty('--top', (Math.random() * 100).toFixed(1) + '%');
+    p.style.setProperty('--left', (Math.random() * 100).toFixed(1) + '%');
+    p.style.setProperty('--o', (Math.random() * 0.3 + 0.15).toFixed(2));
     field.appendChild(p);
   }
 
-  function openCreateModal(){
-  document.getElementById('createModal').classList.add('open');
-}
-function closeCreateModal(){
-  document.getElementById('createModal').classList.remove('open');
-}
-const manuscriptData = {
-  "odia-manuscript-1": {
-    title: "Sample Odia Historical Manuscript",
-    meta: "Odia • Odia Script • 19th Century",
-    script: "ଓ",
-    pages: ["Page 1", "Page 2", "Page 3", "Page 4"],
-    ai: [
-      { label: "OCR", state: "done" },
-      { label: "Script", state: "done" },
-      { label: "Qwen", state: "pending" },
-      { label: "RAG", state: "waiting" }
-    ]
-  },
-  "temple-inscription-1": {
-    title: "Sample Temple Inscription",
-    meta: "Sanskrit • Devanagari Script • 12th Century",
-    script: "देव",
-    pages: ["Page 1", "Page 2"],
-    ai: [
-      { label: "OCR", state: "done" },
-      { label: "Script", state: "pending" },
-      { label: "Qwen", state: "waiting" },
-      { label: "RAG", state: "waiting" }
-    ]
-  },
-  "palm-leaf-1": {
-    title: "Sample Palm Leaf Manuscript",
-    meta: "Tamil • Grantha Script • 17th Century",
-    script: "த",
-    pages: ["Page 1", "Page 2", "Page 3"],
-    ai: [
-      { label: "OCR", state: "done" },
-      { label: "Script", state: "done" },
-      { label: "Qwen", state: "pending" },
-      { label: "RAG", state: "waiting" }
-    ]
+  const params = new URLSearchParams(window.location.search);
+  const rawId = params.get('id');
+  const manuscriptId = rawId ? parseInt(rawId, 10) : null;
+  let activePages = [];
+
+  function getAuthHeaders(includeContentType = true) {
+    const token = localStorage.getItem('access_token');
+    const headers = {};
+    if (includeContentType) {
+      headers['Content-Type'] = 'application/json';
+    }
+    if (token && token !== 'undefined' && token !== 'null') {
+      headers['Authorization'] = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+    }
+    return headers;
   }
-};
 
-const params = new URLSearchParams(window.location.search);
-const m = manuscriptData[params.get('id')];
-if (!m) {
-  document.querySelector('.content').innerHTML = '<p>Manuscript not found.</p>';
-  throw new Error('No manuscript for id: ' + params.get('id'));
-}
-
-document.getElementById('mScript').textContent = m.script;
-document.getElementById('mTitle').textContent = m.title;
-document.getElementById('mMeta').textContent = m.meta;
-document.getElementById('provenanceLink').href = 'provenance.html?id=' + params.get('id');
-
-const manuscriptId = params.get('id');
-document.getElementById('pageList').innerHTML =
-  m.pages.map((p, i) => `<a href="page-detail.html?id=${manuscriptId}&page=${i + 1}">${p}</a>`).join('');
-
-const icon = { done: '✓', pending: '⏳', waiting: '' };
-document.getElementById('aiList').innerHTML = m.ai.map(a => `
-  <div class="ai-row">
-    ${a.label}
-    <span class="ai-status ${a.state}">${icon[a.state]}</span>
-  </div>`).join('');
-
-function openPageUploadModal(pageNum){
-  document.getElementById('pageNumberInput').value = pageNum || (document.querySelectorAll('#pageList div').length + 1);
-  document.getElementById('pageUploadModal').classList.add('open');
-}
-function closePageUploadModal(){
-  document.getElementById('pageUploadModal').classList.remove('open');
-  document.getElementById('pageFileInput').value = '';
-}
-
-const dz = document.getElementById('dropzone');
-dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
-dz.addEventListener('drop', e => {
-  e.preventDefault();
-  dz.classList.remove('dragover');
-  document.getElementById('pageFileInput').files = e.dataTransfer.files;
-});
-
-const aiStepLabels = [
-  "Image preprocessing",
-  "Script detection",
-  "OCR",
-  "Qwen analysis",
-  "RAG retrieval",
-  "Reconstruction",
-  "Evaluation"
-];
-
-let aiTimer = null;
-
-function startAiProcessing(){
-  document.getElementById('aiSteps').innerHTML = aiStepLabels.map((label, i) => `
-    <div class="ai-step" id="aiStep${i}">
-      ${label}
-      <div class="ai-step-icon" id="aiStepIcon${i}"></div>
-    </div>`).join('');
-  document.getElementById('aiProgressFill').style.width = '0%';
-  document.getElementById('aiProgressPercent').textContent = '0%';
-  document.getElementById('aiProgressModal').classList.add('open');
-
-  let current = 0;
-  const percentPerStep = Math.round(100 / aiStepLabels.length);
-
-  aiTimer = setInterval(() => {
-    if (current > 0){
-      document.getElementById('aiStep' + (current - 1)).classList.remove('active');
-      document.getElementById('aiStepIcon' + (current - 1)).className = 'ai-step-icon done';
-      document.getElementById('aiStepIcon' + (current - 1)).textContent = '✓';
+  function parseApiError(data) {
+    if (!data) return 'Error processing request.';
+    if (typeof data.detail === 'string') return data.detail;
+    if (Array.isArray(data.detail)) {
+      return data.detail.map(item => item.msg || item.message || JSON.stringify(item)).join(', ');
     }
-    if (current < aiStepLabels.length){
-      document.getElementById('aiStep' + current).classList.add('active');
-      document.getElementById('aiStepIcon' + current).className = 'ai-step-icon running';
-      document.getElementById('aiStepIcon' + current).textContent = '⏳';
-
-      const pct = Math.min(100, percentPerStep * (current + 1));
-      document.getElementById('aiProgressFill').style.width = pct + '%';
-      document.getElementById('aiProgressPercent').textContent = pct + '%';
-
-      current++;
-    } else {
-      clearInterval(aiTimer);
-      setTimeout(() => {
-        document.getElementById('aiProgressModal').classList.remove('open');
-        window.location.href = 'page-detail.html?id=' + params.get('id') + '&page=1';
-      }, 500);
+    if (typeof data.detail === 'object' && data.detail !== null) {
+      return data.detail.msg || data.detail.message || JSON.stringify(data.detail);
     }
-  }, 700);
-}
+    return 'Failed to complete manuscript action.';
+  }
 
-function cancelAiProgress(){
-  clearInterval(aiTimer);
-  document.getElementById('aiProgressModal').classList.remove('open');
-}
+  function getPageImageUrl(page) {
+    const path = page.processed_path || page.original_path || page.image_url || '';
+    if (!path) return '';
+    if (path.startsWith('http') || path.startsWith('/')) return path;
+    return '/' + path.replace(/\\/g, '/');
+  }
+
+  function renderPages(pages = []) {
+    activePages = pages;
+    const pageListEl = document.getElementById('pageList');
+    pageListEl.innerHTML = '';
+
+    if (pages.length === 0) {
+      pageListEl.innerHTML = '<p style="color:var(--muted);font-size:13px;padding:6px;">No pages added yet.</p>';
+      document.getElementById('manuscriptFrame').innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/></svg>
+        <span>Upload a page image to start previewing</span>
+      `;
+      return;
+    }
+
+    pages.forEach((p, idx) => {
+      const pageNum = p.page_number || (idx + 1);
+      const link = document.createElement('a');
+      link.href = `/page-detail?id=${manuscriptId}&page=${p.id || pageNum}`;
+      link.textContent = `Page ${pageNum}`;
+
+      const imgUrl = getPageImageUrl(p);
+
+      link.onmouseover = () => {
+        if (imgUrl) {
+          document.getElementById('manuscriptFrame').innerHTML = `<img src="${imgUrl}" alt="Page ${pageNum}" style="width:100%; height:100%; object-fit:contain;">`;
+        }
+      };
+
+      pageListEl.appendChild(link);
+    });
+
+    // Auto-preview first page
+    const firstImg = getPageImageUrl(pages[0]);
+    if (firstImg) {
+      document.getElementById('manuscriptFrame').innerHTML = `<img src="${firstImg}" alt="Page 1" style="width:100%; height:100%; object-fit:contain;">`;
+    }
+  }
+
+  async function loadManuscriptDetails() {
+    if (!manuscriptId || isNaN(manuscriptId)) {
+      window.location.href = '/manuscripts';
+      return;
+    }
+
+    const headers = getAuthHeaders();
+    const fetchOptions = { headers, credentials: 'include' };
+
+    try {
+      // 1. Fetch User Profile
+      const authRes = await fetch('/auth/me', fetchOptions);
+      if (authRes.ok && (authRes.headers.get('content-type') || '').includes('application/json')) {
+        const user = await authRes.json();
+        const displayName = user.name || user.full_name || user.email || 'Scholar';
+        document.getElementById('userName').textContent = displayName;
+        document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
+      }
+
+      // 2. Fetch Manuscript Details (/api/manuscripts/{id})
+      const res = await fetch(`/api/manuscripts/${manuscriptId}`, fetchOptions);
+      if (res.ok && (res.headers.get('content-type') || '').includes('application/json')) {
+        const m = await res.json();
+        document.getElementById('mTitle').textContent = m.title || 'Untitled Manuscript';
+        document.getElementById('mScript').textContent = m.script || '📜 Manuscript';
+        document.getElementById('mMeta').textContent = `${m.language || 'Unknown Language'} • ${m.script || 'Script'} • ${m.approximate_date || 'Heritage Record'}`;
+        document.getElementById('provenanceLink').href = `/provenance?id=${manuscriptId}`;
+
+        // 3. Fetch Pages for this Manuscript (/api/manuscripts/{id}/pages)
+        const pagesRes = await fetch(`/api/manuscripts/${manuscriptId}/pages`, fetchOptions);
+        if (pagesRes.ok && (pagesRes.headers.get('content-type') || '').includes('application/json')) {
+          const pages = await pagesRes.json();
+          renderPages(Array.isArray(pages) ? pages : []);
+        } else {
+          renderPages([]);
+        }
+      } else {
+        document.getElementById('mTitle').textContent = 'Manuscript Not Found';
+      }
+    } catch (e) {
+      console.warn('Error loading manuscript details:', e);
+      renderPages([]);
+    }
+  }
+
+  // Upload Modal Handlers
+  function openPageUploadModal(){
+    document.getElementById('uploadError').style.display = 'none';
+    document.getElementById('uploadPageForm').reset();
+    document.getElementById('dropzoneText').textContent = 'Drag & Drop Image here';
+    document.getElementById('pageNumberInput').value = activePages.length + 1;
+    document.getElementById('pageUploadModal').classList.add('open');
+  }
+
+  function closePageUploadModal(){
+    document.getElementById('pageUploadModal').classList.remove('open');
+  }
+
+  const dz = document.getElementById('dropzone');
+  const fileInput = document.getElementById('pageFileInput');
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length > 0) {
+      document.getElementById('dropzoneText').textContent = fileInput.files[0].name;
+    }
+  });
+
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault();
+    dz.classList.remove('dragover');
+    fileInput.files = e.dataTransfer.files;
+    if (fileInput.files.length > 0) {
+      document.getElementById('dropzoneText').textContent = fileInput.files[0].name;
+    }
+  });
+
+  // Handle Page Upload Form Submission
+  document.getElementById('uploadPageForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorEl = document.getElementById('uploadError');
+    const submitBtn = document.getElementById('uploadSubmitBtn');
+
+    if (!fileInput.files || fileInput.files.length === 0) {
+      errorEl.textContent = 'Please choose an image to upload.';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    const pageNumber = document.getElementById('pageNumberInput').value;
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+
+    submitBtn.disabled = true;
+    errorEl.style.display = 'none';
+
+    try {
+      const response = await fetch(`/api/manuscripts/${manuscriptId}/pages?page_number=${encodeURIComponent(pageNumber)}`, {
+        method: 'POST',
+        headers: getAuthHeaders(false), // Omit application/json for multipart upload
+        credentials: 'include',
+        body: formData
+      });
+
+      if (response.ok) {
+        closePageUploadModal();
+        await loadManuscriptDetails();
+      } else {
+        const data = await response.json();
+        errorEl.textContent = parseApiError(data);
+        errorEl.style.display = 'block';
+      }
+    } catch (err) {
+      errorEl.textContent = 'Server error during upload. Please verify file type and try again.';
+      errorEl.style.display = 'block';
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  // AI Pipeline Runner
+  const aiStepLabels = [
+    "Image preprocessing",
+    "Script detection",
+    "OCR Extraction",
+    "Qwen LLM Analysis",
+    "RAG Context Retrieval",
+    "Reconstruction",
+    "Scholar Evaluation"
+  ];
+
+  let aiTimer = null;
+
+  function startAiProcessing(){
+    document.getElementById('aiSteps').innerHTML = aiStepLabels.map((label, i) => `
+      <div class="ai-step" id="aiStep${i}">
+        ${label}
+        <div class="ai-step-icon" id="aiStepIcon${i}"></div>
+      </div>`).join('');
+    document.getElementById('aiProgressFill').style.width = '0%';
+    document.getElementById('aiProgressPercent').textContent = '0%';
+    document.getElementById('aiProgressModal').classList.add('open');
+
+    let current = 0;
+    const percentPerStep = Math.round(100 / aiStepLabels.length);
+
+    fetch('/api/ai/process', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+      body: JSON.stringify({ manuscript_id: manuscriptId })
+    }).catch(e => console.warn('Triggering visual progression:', e));
+
+    aiTimer = setInterval(() => {
+      if (current > 0){
+        document.getElementById('aiStep' + (current - 1)).classList.remove('active');
+        document.getElementById('aiStepIcon' + (current - 1)).className = 'ai-step-icon done';
+        document.getElementById('aiStepIcon' + (current - 1)).textContent = '✓';
+      }
+      if (current < aiStepLabels.length){
+        document.getElementById('aiStep' + current).classList.add('active');
+        document.getElementById('aiStepIcon' + current).className = 'ai-step-icon running';
+        document.getElementById('aiStepIcon' + current).textContent = '⏳';
+
+        const pct = Math.min(100, percentPerStep * (current + 1));
+        document.getElementById('aiProgressFill').style.width = pct + '%';
+        document.getElementById('aiProgressPercent').textContent = pct + '%';
+
+        current++;
+      } else {
+        clearInterval(aiTimer);
+        setTimeout(() => {
+          document.getElementById('aiProgressModal').classList.remove('open');
+          window.location.href = `/page-detail?id=${manuscriptId}&page=1`;
+        }, 500);
+      }
+    }, 600);
+  }
+
+  function cancelAiProgress(){
+    clearInterval(aiTimer);
+    document.getElementById('aiProgressModal').classList.remove('open');
+  }
+
+  document.addEventListener('DOMContentLoaded', loadManuscriptDetails);
 </script>
-
 
 </body>
 </html>
